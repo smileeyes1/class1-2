@@ -1,28 +1,12 @@
 const App = {
+    data: null,
 
-  data: null,
+    load: function () {
+        const grade = document.getElementById("gradeSelect").value;
+        this.data = curriculumData;
 
-  async init() {
-    const res = await fetch('./curriculum-offline.json');
-    this.data = await res.json();
+        const gradeData = this.data.grades.find(g => g.grade == grade);
 
-    UI.loadGrades(this.data);
-  },
-
-  getGrade(){ return document.getElementById("grade").value; },
-  getUnit(){ return document.getElementById("unit").value; },
-  getLesson(){ return document.getElementById("lesson").value; },
-
-  generate(){
-    const html = Generator.build(
-      this.data,
-      this.getGrade(),
-      this.getUnit(),
-      this.getLesson()
-    );
-
-    document.getElementById("output").innerHTML = html;
-  }
+        UI.renderLessons(gradeData);
+    }
 };
-
-window.onload = () => App.init();
