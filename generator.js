@@ -1,23 +1,50 @@
 const Generator = {
 
-  build(data, grade, unitIndex, lessonIndex){
+    lessonPlan: function (lesson) {
+        return `
+📘 التحضير الذكي
 
-    const unit = data.grades.find(x=>x.grade==grade).units[unitIndex];
-    const lesson = unit.lessons[lessonIndex];
+الدرس:
+${lesson}
 
-    return `
-      <h2>${lesson}</h2>
+الأهداف:
+- فهم المفهوم
+- تطبيق المهارة
+- حل مسائل
 
-      <hr>
+الأنشطة:
+- تمهيد بصري
+- تدريب عملي
+- تقييم سريع
 
-      <h3>📘 التحضير</h3>
-      <p>شرح تدريسي مبسط وفق المنهاج الفلسطيني.</p>
+ملاحظة:
+تم توليد هذا المحتوى من النظام المحلي.
+`;
+    },
 
-      <h3>🧠 اختبار قصير</h3>
-      <p>سؤال: وضّح مفهوم ${lesson}</p>
+    worksheet: function (lesson) {
+        return `
+📄 ورقة عمل
 
-      <h3>📄 ورقة عمل</h3>
-      <p>تمارين تطبيقية على الدرس.</p>
-    `;
-  }
+الدرس: ${lesson}
+
+1) سؤال أول
+2) سؤال ثاني
+3) سؤال ثالث
+
+(يتم تطوير بنك الأسئلة لاحقاً)
+`;
+    },
+
+    test: function (lesson) {
+        return `
+🧪 اختبار
+
+${lesson}
+
+س1: ..........
+س2: ..........
+س3: ..........
+`;
+    }
 };
