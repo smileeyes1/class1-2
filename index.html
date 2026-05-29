@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة Z-Pulse OS V2 التعليمية المغلقة</title>
+    <style>
+        /* ============================================================================
+           [1] الهوية البصرية ونظام العرض للواجهة التشغيلية (Screen CSS Style)
+           ============================================================================ */
+        :root {
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --emerald-600: #059669;
+            --emerald-700: #047857;
+            --blue-600: #2563eb;
+            --amber-600: #d97706;
+            --rose-600: #e11d48;
+            --border: #e2e8f0;
+            --text-main: #0f172a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background-color: #f1f5f9; color: var(--text-main); font-size: 14px; }
+        .os-layout { display: grid; grid-template-columns: 340px 1fr; min-height: 100vh; }
+        
+        /* شريط الحوكمة والرقابة الجانبي */
+        .sidebar { background-color: var(--slate-900); color: #f8fafc; padding: 20px; display: flex; flex-direction: column; border-left: 1px solid #1e293b; }
+        .sidebar h2 { font-size: 1.3rem; text-align: center; padding-bottom: 12px; border-bottom: 2px dashed var(--slate-700); color: #38bdf8; }
+        .system-badge { background: #1e293b; border: 1px solid #334155; padding: 12px; border-radius: 6px; margin: 15px 0; font-size: 0.85rem; line-height: 1.6; }
+        .role-selector { margin-top: 8px; padding: 6px; background: var(--slate-800); color: white; border: 1px solid var(--slate-700); width: 100%; border-radius: 4px; }
+        
+        .tab-box { background: #020617; border: 1px solid #1e293b; border-radius: 6px; padding: 10px; margin-top: 10px; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; }
+        .tab-title { font-size: 0.85rem; font-weight: bold; color: #38bdf8; border-bottom: 1px solid #1e293b; padding-bottom: 4px; }
+        .log-viewport { font-family: monospace; font-size: 0.75rem; color: #4ade80; overflow-y: auto; flex-grow: 1; max-height: 200px; line-height: 1.5; }
+        .doc-list-viewport { overflow-y: auto; flex-grow: 1; max-height: 200px; display: flex; flex-direction: column; gap: 6px; }
+        .stored-doc-card { background: #1e293b; padding: 8px; border-radius: 4px; font-size: 0.8rem; border: 0.5px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .btn-mini { padding: 3px 6px; font-size: 0.75rem; border: none; border-radius: 3px; cursor: pointer; color: white; }
+
+        /* منطقة العمل الرئيسية */
+        .workspace { padding: 30px; display: flex; flex-direction: column; gap: 25px; overflow-y: auto; height: 100vh; }
+        .panel { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .panel-title { font-size: 1.1rem; color: var(--slate-800); margin-bottom: 15px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .control-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-weight: 600; color: var(--slate-700); }
+        .form-control { padding: 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; background: #f8fafc; }
+        .btn-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .btn { border: none; padding: 12px; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .btn-primary { background-color: var(--blue-600); }
+        .btn-success { background-color: var(--emerald-600); }
+        .btn-amber { background-color: var(--amber-600); }
+        .btn-danger { background-color: var(--rose-600); }
+        
+        .document-preview-wrapper { background: #cbd5e1; padding: 30px; border-radius: 8px; display: flex; flex-direction: column; align-items: center; gap: 15px; overflow-x: auto; }
+
+        /* ============================================================================
+           [2] البنية الهندسية القياسية الورقية الموجهة للطباعة الموحدة ISO A4 (300 DPI)
+           ============================================================================ */
+        .pcdc-a4-sheet {
+            background: white;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            color: black;
+            font-family: 'Times New Roman', 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            direction: rtl;
+            position: relative;
+            box-sizing: border-box;
+            
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm; /* الهامش الدولي الثابت لحماية النصوص من التآكل والمطابع */
+            margin: 0 auto;
+        }
+
+        .pcdc-header { display: grid; grid-template-columns: 1fr auto 1fr; border-bottom: 2.5px solid black; padding-bottom: 12px; margin-bottom: 20px; text-align: center; font-weight: bold; font-size: 1rem; }
+        .pcdc-title { text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; background: #f1f5f9; border: 1px solid black; padding: 6px 0; border-radius: 4px; }
+        
+        .pcdc-section { border: 1.5px solid black; border-radius: 4px; margin-bottom: 15px; padding: 12px; page-break-inside: avoid; break-inside: avoid; }
+        .pcdc-section-title { font-weight: bold; font-size: 1.1rem; background: #e2e8f0; padding: 4px 10px; margin: -12px -12px 12px -12px; border-bottom: 1.5px solid black; }
+        .q-text { font-size: 1.25rem; margin: 10px 0; padding-right: 8px; line-height: 2.1; }
+        .pcdc-footer { border-top: 1px solid black; margin-top: 30px; padding-top: 8px; text-align: center; font-size: 0.8rem; font-weight: bold; }
+
+        .prep-meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid black; margin-bottom: 15px; }
+        .prep-meta-cell { padding: 6px; border: 0.5px solid black; background: #f8fafc; text-align: center; font-weight: bold; font-size: 0.9rem; }
+
+        /* ============================================================================
+           [3] قواعد الحجب والتحكم الفاصل للطباعة الفعليّة (@media print)
+           ============================================================================ */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+            body { background: white; color: black; font-size: 12pt; }
+            .sidebar, .panel, .btn, .btn-mini, .btn-print-floating { display: none !important; }
+            .os-layout { grid-template-columns: 1fr; }
+            .workspace { padding: 0; height: auto; overflow: visible; }
+            .document-preview-wrapper { background: white; padding: 0; border-radius: 0; overflow: visible; width: 100%; }
+            
+            .pcdc-a4-sheet {
+                box-shadow: none !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                padding: 20mm !important;
+                margin: 0 !important;
+                page-break-after: always;
+                break-after: page;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="os-layout">
+    <div class="sidebar">
+        <h2>Z-Pulse OS V2</h2>
+        
+        <div class="system-badge">
+            <p><strong>حالة البنية:</strong> مغلقة ومحصنة بالكامل</p>
+            <p><strong>المعيار المعتمد:</strong> ISO 216 A4 Fixed</p>
+            <p style="margin-top: 5px;"><strong>رتبة الحوكمة النشطة:</strong></p>
+            <select id="sys-role" class="role-selector">
+                <option value="Teacher">Teacher (معلم ممارس)</option>
+                <option value="Admin">Admin (مدير النظام)</option>
+                <option value="ReadOnly">ReadOnly (مشاهد خارجي)</option>
+            </select>
+        </div>
+
+        <div class="tab-box">
+            <div class="tab-title">📋 تتبع الحركات الزمنية (Audit Trail)</div>
+            <div id="audit-logger" class="log-viewport"></div>
+        </div>
+
+        <div class="tab-box">
+            <div class="tab-title">📦 مستودع الوثائق والنسخ (Local Storage)</div>
+            <div id="document-manager-list" class="doc-list-viewport"></div>
+        </div>
+    </div>
+
+    <div class="workspace">
+        <div class="panel">
+            <div class="panel-title">
+                <span>المحرك الإنتاجي التراكمي للمنهاج الفلسطيني الموحد</span>
+                <span id="system-clock" style="font-size: 0.85rem; font-family: monospace; color: var(--slate-700);"></span>
+            </div>
+            
+            <div class="control-grid">
+                <div class="form-group">
+                    <label>الصف الدراسي</label>
+                    <select id="core-grade" class="form-control">
+                        <option value="1">الصف الأول الأساسي</option>
+                        <option value="2">الصف الثاني الأساسي</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>الوحدة والدرس التعليمي الممنهج</label>
+                    <select id="core-lesson" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label>عدد الفقرات الموزونة</label>
+                    <input type="number" id="core-count" class="form-control" value="3" min="1" max="10">
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-primary" id="btn-gen-prep">توليد تحضير سلوكي ممتد 📝</button>
+                <button class="btn btn-success" id="btn-gen-worksheet">توليد ورقة عمل بيداغوجية 📄</button>
+                <button class="btn btn-amber" id="btn-gen-exam">توليد اختبار ومواصفات 🎓</button>
+            </div>
+        </div>
+
+        <div class="document-preview-wrapper" id="preview-wrapper">
+            <div style="text-align: center; margin: auto; color: var(--slate-700); font-weight: bold;">
+                [نظام الحوكمة مستقر] حدد الكتل البيداغوجية من الأعلى لبث الأحداث والإنتاج المباشر للمستندات المعتمدة.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================================
+    // [4] كتل البيانات وعقود المناهج والأسئلة (تدرج بيداغوجي بالأرقام العربية)
+    // ============================================================================
+    const COMPREHENSIVE_CURRICULUM = {
+        grade_1: [
+            { id: "l1_1", unit: "الوحدة الأولى: الأعداد ضمن العدد ٩", name: "الدرس الأول: الأعداد من ١ إلى ٥", skills: ["counting", "comparison"] },
+            { id: "l1_2", unit: "الوحدة الأولى: الأعداد ضمن العدد ٩", name: "الدرس الثاني: مكونات الأعداد", skills: ["classification", "sorting"] },
+            { id: "l1_3", unit: "الوحدة الثانية: الجمع والطرح ضمن العدد ٩", name: "الدرس الثالث: مفهوم الجمع والربط", skills: ["addition"] }
+        ],
+        grade_2: [
+            { id: "l2_1", unit: "الوحدة الأولى: الأعداد ضمن ٩٩", name: "الدرس الأول: الآحاد والعشرات", skills: ["place_value", "counting"] },
+            { id: "l2_2", unit: "الوحدة الأولى: الأعداد ضمن ٩٩", name: "الدرس الثاني: مقارنة الأعداد وترتيبها", skills: ["comparison", "sorting"] },
+            { id: "l2_3", unit: "الوحدة الثانية: الجمع والطرح ضمن ٩٩ دون حمل", name: "الدرس الثالث: الجمع دون حمل", skills: ["addition"] }
+        ]
+    };
+
+    const COMPREHENSIVE_QUESTION_BANK = [
+        { id: "q_c1", skill: "counting", level: "concrete", templateHtml: "تأمل الأشكال البصرية المعروضة أمامك، ثم عُدّ الأشكال المظللة بالتتالي: 🍎🍎🍎🍎 ➔ العدد هو: ( ٤ )", defaultMark: 2 },
+        { id: "q_c2", skill: "counting", level: "semi", templateHtml: "عدّ القفزات الممثلة على خط الأعداد من القيمة ٠ إلى القيمة ٥، واكتب النتيجة: ( ٥ )", defaultMark: 2 },
+        { id: "q_c3", skill: "counting", level: "abstract", templateHtml: "اكتب الأعداد الفراغية المفقودة بالتسلسل الحتمي: ١ ، ٢ ، ٣ ، ( ٤ ) ، ٥", defaultMark: 2 },
+        { id: "q_a1", skill: "addition", level: "concrete", templateHtml: "مجموع الكتل البصرية في المجموعتين المتجاورتين 🍏🍏 + 🍏🍏🍏 يساوي إجمالاً: ( ٥ ) من الثمار النظيفة.", defaultMark: 2 },
+        { id: "q_a2", skill: "addition", level: "semi", templateHtml: "استعن بأعمدة قطع دينز (الآحاد والعشرات) الممثلة لجمع القيم الكلية: ٢٠ + ١٣ = ( ٣٣ )", defaultMark: 2 },
+        { id: "q_a3", skill: "addition", level: "abstract", templateHtml: "جد ناتج العمليات الحسابية التالية مباشرة بالأرقام العربية: ٤٠ + ١٢ = ( ٥٢ ) ، ٣ + ٦ = ( ٩ )", defaultMark: 2 },
+        { id: "q_comp1", skill: "comparison", level: "concrete", templateHtml: "ضع إشارة الفتحة المقارنة الصحيحة (>) أو (<) أو (=) حسب كتل الكرات: 🔵🔵🔵 [ > ] 🔵🔵", defaultMark: 2 },
+        { id: "q_comp2", skill: "comparison", level: "semi", templateHtml: "بناءً على موقع العددين على لوحة المئة المعلقة، ضع الإشارة المناسبة: ١٥ [ < ] ٢٥", defaultMark: 2 },
+        { id: "q_comp3", skill: "comparison", level: "abstract", templateHtml: "وازن حتمياً بين المقادير الرقمية التجريدية التالية داخل الفراغ: ٨٩ [ > ] ٧٩ ، ٣٤ [ = ] ٣٤", defaultMark: 2 }
+    ];
+
+    // ============================================================================
+    // [5] طبقة البيانات وإدارة الترقيات والتحديثات (Storage Core & Migration Engine)
+    // ============================================================================
+    class LocalDB {
+        static STORAGE_KEY = 'Z_PULSE_V2_MIGRATED_STABLE_STORE';
+        static instance;
+        static getInstance() { if (!this.instance) this.instance = new LocalDB(); return this.instance; }
+        
+        constructor() { this.runMigrationLifecycle(); }
+        
+        runMigrationLifecycle() {
+            let data = localStorage.getItem(LocalDB.STORAGE_KEY);
+            if (!data) {
+                // تفعيل النسخة المبدئية الأساسية للنظام
+                const initialState = { version: "2.0", documents: [] };
+                localStorage.setItem(LocalDB.STORAGE_KEY, JSON.stringify(initialState));
+            } else {
+                // التحديث التراكمي في حال وجود إصدارات قديمة (Backward Compatibility Handler)
+                let parsed = JSON.parse(data);
+                if (parsed.version === "1.0") {
+                    parsed.version = "2.0";
+                    if (!parsed.documents) parsed.documents = [];
+                    localStorage.setItem(LocalDB.STORAGE_KEY, JSON.stringify(parsed));
+                }
+            }
+        }
+
+        readRaw() { return JSON.parse(localStorage.getItem(LocalDB.STORAGE_KEY)); }
+        commit(state) { localStorage.setItem(LocalDB.STORAGE_KEY, JSON.stringify(state)); }
+        
+        insertDocument(doc) {
+            const state = this.readRaw();
+            state.documents.push(doc);
+            this.commit(state);
+        }
+
+        getAllActiveDocuments() {
+            return this.readRaw().documents.filter(d => !d.meta.isDeleted);
+        }
+
+        softDeleteDocument(docId, user) {
+            const state = this.readRaw();
+            const doc = state.documents.find(d => d.meta.id === docId);
+            if (doc) {
+                doc.meta.isDeleted = true;
+                doc.meta.deletedBy = user;
+                doc.meta.deletedAt = new Date().toISOString();
+                this.commit(state);
+            }
+        }
+
+        rollbackDocument(docId) {
+            const state = this.readRaw();
+            const doc = state.documents.find(d => d.meta.id === docId);
+            if (doc) {
+                doc.meta.isDeleted = false;
+                delete doc.meta.deletedBy;
+                delete doc.meta.deletedAt;
+                this.commit(state);
+            }
+        }
+    }
+
+    // ============================================================================
+    // [6] جدار الحماية الأمني ومطهر المدخلات (Sanitizer Layer)
+    // ============================================================================
+    class Sanitizer {
+        static getInstance() { return new Sanitizer(); }
+        sanitizePayload(input) {
+            if (!input) throw new Error("Security Firewall Block: محاولة إدخال كتل فارغة ومرفوضة.");
+            return {
+                grade: (Number(input.grade) === 1 || Number(input.grade) === 2) ? Number(input.grade) : 1,
+                lessonId: String(input.lessonId).replace(/<[^>]*>/g, '').trim(),
+                totalQuestions: Math.min(Math.max(Math.floor(Number(input.totalQuestions)), 1), 10),
+                requestedBy: 'الأستاذ محمد غنام'
+            };
+        }
+    }
+
+    // ============================================================================
+    // [7] ناقل الأحداث المركزي القسري (Core Event Bus)
+    // ============================================================================
+    class CoreEventBus {
+        static instance;
+        registry = {};
+        static getInstance() { if (!this.instance) this.instance = new CoreEventBus(); return this.instance; }
+        
+        on(event, handler) {
+            if (!this.registry[event]) this.registry[event] = [];
+            this.registry[event].push(handler);
+        }
+
+        emit(event, payload) {
+            let processedPayload = payload;
+            if (event.endsWith('_requested')) {
+                try {
+                    processedPayload = Sanitizer.getInstance().sanitizePayload(payload);
+                } catch (e) {
+                    this.emit('security_breach_detected', { msg: e.message, event });
+                    return;
+                }
+            }
+            if (this.registry[event]) {
+                this.registry[event].forEach(handler => handler(processedPayload));
+            }
+        }
+    }
+
+    // ============================================================================
+    // [8] نظام صلاحيات الحوكمة الصارم (Governance RBAC Layer)
+    // ============================================================================
+    class AuthManager {
+        static getInstance() { return new AuthManager(); }
+        getCurrentRole() { return document.getElementById('sys-role').value; }
+        requireRole(requiredRole) {
+            const current = this.getCurrentRole();
+            const hierarchy = { 'ReadOnly': 1, 'Teacher': 2, 'Admin': 3 };
+            if (hierarchy[current] < hierarchy[requiredRole]) {
+                throw new Error(`Governance Violation: الإجراء مرفوض. رتبتك الحالية تنتهك قيود المحرك المغلَق.`);
+            }
+        }
+    }
+
+    // ============================================================================
+    // [9] عقل التدرج البيداغوجي ومطابقة المعايير (Domain Rule Engine)
+    // ============================================================================
+    class QuestionMatcher {
+        static getInstance() { return new QuestionMatcher(); }
+        matchBalancedQuestions(skills, total) {
+            const selected = [];
+            const levels = ['concrete', 'semi', 'abstract'];
+            const pool = COMPREHENSIVE_QUESTION_BANK.filter(q => skills.includes(q.skill));
+            
+            if (pool.length === 0) return COMPREHENSIVE_QUESTION_BANK.slice(0, total);
+
+            for (let i = 0; i < total; i++) {
+                const targetLvl = levels[i % levels.length];
+                let question = pool.find(q => q.level === targetLvl && !selected.includes(q));
+                if (!question) question = pool.find(q => !selected.includes(q));
+                if (question) selected.push(question);
+            }
+            return selected;
+        }
+    }
+
+    // ============================================================================
+    // [10] منسق التطبيق ومولدات الوثائق المتكاملة (Application Layer)
+    // ============================================================================
+    class DocumentOrchestrator {
+        constructor() {
+            this.db = LocalDB.getInstance();
+            this.bus = CoreEventBus.getInstance();
+            this.auth = AuthManager.getInstance();
+            this.matcher = QuestionMatcher.getInstance();
+            this.bindOrchestrationChannels();
+        }
+        static initialize() { return new DocumentOrchestrator(); }
+
+        bindOrchestrationChannels() {
+            this.bus.on('prep_generation_requested', (p) => this.buildDocument(p, 'preparation'));
+            this.bus.on('worksheet_generation_requested', (p) => this.buildDocument(p, 'worksheet'));
+            this.bus.on('exam_generation_requested', (p) => this.buildDocument(p, 'exam'));
+        }
+
+        buildDocument(p, type) {
+            try {
+                this.auth.requireRole('Teacher');
+                const docId = `doc_${Date.now()}`;
+                const lessons = COMPREHENSIVE_CURRICULUM[`grade_${p.grade}`];
+                const ctx = lessons.find(l => l.id === p.lessonId) || lessons[0];
+                
+                let body = '';
+                if (type === 'preparation') {
+                    body = `
+                        <div class="prep-meta-grid">
+                            <div class="prep-meta-cell">المبحث: الرياضيات الموحدة</div>
+                            <div class="prep-meta-cell">الصف: ${p.grade === 1 ? 'الأول' : 'الثاني'} الأساسي</div>
+                            <div class="prep-meta-cell">الوحدة المعتمدة: ${ctx.unit}</div>
+                            <div class="prep-meta-cell">عنوان الدرس: ${ctx.name}</div>
+                        </div>
+                        <div class="pcdc-section">
+                            <div class="pcdc-section-title">الأهداف السلوكية الإجرائية (Behavioral Objectives)</div>
+                            <p class="q-text">١. أن يستوعب الطالب المهارة الهيكلية المخططة (${ctx.skills.join(', ')}) من خلال التداول الحركي المحسوس.</p>
+                            <p class="q-text">٢. أن يحل المسائل الرياضية التجريدية مستخدماً الأرقام العربية (٠١٢٣٤٥٦٧٨٩) بثبات تام.</p>
+                        </div>
+                        <div class="pcdc-section">
+                            <div class="pcdc-section-title">إدارة زمن الحصة والاستراتيجيات المتبعة (٤٠ دقيقة)</div>
+                            <p class="q-text"><strong>التمهيد والخبرات السابقة (٥ دقائق):</strong> استرجاع متطلبات الدرس التراكمية حركياً.</p>
+                            <p class="q-text"><strong>البناء والتعلم النشط (٢٥ دقيقة):</strong> الانتقال المنظم: محسوس ➔ شبه مجرد ➔ مجرد.</p>
+                            <p class="q-text"><strong>التقويم الختامي (١٠ دقائق):</strong> رصد الأخطاء الشائعة ومعالجتها فورياً على الدفاتر.</p>
+                        </div>
+                    `;
+                } else if (type === 'worksheet') {
+                    const qs = this.matcher.matchBalancedQuestions(ctx.skills, p.totalQuestions);
+                    body = qs.map((q, i) => `
+                        <div class="pcdc-section">
+                            <div class="pcdc-section-title">التدريب البيداغوجي رقم (${i + ١}) ➔ [المستوى: ${q.level}]</div>
+                            <div class="q-text">${q.templateHtml}</div>
+                        </div>
+                    `).join('');
+                } else if (type === 'exam') {
+                    const qs = this.matcher.matchBalancedQuestions(ctx.skills, p.totalQuestions);
+                    body = `
+                        <div class="pcdc-section" style="border: 2px solid black;">
+                            <div class="pcdc-section-title" style="background:#000; color:#fff;">جدول مواصفات ورسم الصعوبة المرفق آلياً للرزمة</div>
+                            <p class="q-text"><strong>التحليل البيداغوجي:</strong> ٤٠٪ محسوس مرئي، ٤٠٪ روابط تخطيطية، ٢٠٪ تجريد حسابي كامل.</p>
+                        </div>
+                    ` + qs.map((q, i) => `
+                        <div class="pcdc-section">
+                            <div class="pcdc-section-title">السؤال رقم (${i + ١}) ➔ [الدرجة المستحقة: ٢ علامة معيارية]</div>
+                            <div class="q-text">${q.templateHtml}</div>
+                        </div>
+                    `).join('');
+                }
+
+                const docStructure = {
+                    meta: { id: docId, type, grade: p.grade, isDeleted: false, stamp: new Date().toLocaleTimeString('ar-EG') },
+                    title: type === 'preparation' ? 'خطة تحضير درس سلوكي معيارية' : type === 'worksheet' ? `ورقة عمل تدرجية بيداغوجية: ${ctx.name}` : `اختبار تقويمي مقيد بجدول المواصفات والتحليل`,
+                    headerHtml: `<div class="pcdc-header"><div>دولة فلسطين<br>وزارة التربية والتعليم والتعليم العالي<br>مديرية التربية والتعليم - طوباس</div><div><br><strong>مستند دراسي رسمي ومحكم</strong><br>معيار ISO 216 A4 الموحد</div><div>المدرسة: عاطوف المختلطة<br>المبحث: الرياضيات العامة<br>المعلم: محمد غنام</div></div>`,
+                    bodyHtml: body,
+                    footerHtml: `<div class="pcdc-footer">وثيقة صادرة ومغلقة برمجياً عبر نواة Z-Pulse OS | كود الفحص المحلي: ${docId}</div>`
+                };
+
+                this.db.insertDocument(docStructure);
+                this.bus.emit('document_bootstrapped', { docId });
+            } catch (e) { this.bus.emit('governance_violation', { msg: e.message }); }
+        }
+    }
+
+    // ============================================================================
+    // [11] شيل واجهة التشغيل ونواة الربط المركزي (System Kernel Shell Engine)
+    // ============================================================================
+    class SystemKernel {
+        constructor() {
+            this.bus = CoreEventBus.getInstance();
+            this.db = LocalDB.getInstance();
+            DocumentOrchestrator.initialize();
+            this.wireKernelSystemEvents();
+            this.bootstrapInterface();
+        }
+        static bootstrap() { return new SystemKernel(); }
+
+        bootstrapInterface() {
+            setInterval(() => {
+                document.getElementById('system-clock').innerText = `توقيت الكيرنل الصارم: ${new Date().toLocaleTimeString('ar-EG')}`;
+            }, 1000);
+
+            const gradeSelector = document.getElementById('core-grade');
+            gradeSelector.addEventListener('change', () => this.syncLessonsDropdown(Number(gradeSelector.value)));
+            this.syncLessonsDropdown(1);
+            
+            this.wireControlButtons();
+            this.refreshLocalStoragePanel();
+        }
+
+        syncLessonsDropdown(grade) {
+            const dropdown = document.getElementById('core-lesson');
+            dropdown.innerHTML = '';
+            COMPREHENSIVE_CURRICULUM[`grade_${grade}`].forEach(l => {
+                const opt = document.createElement('option');
+                opt.value = l.id;
+                opt.innerText = `${l.unit} ➔ ${l.name}`;
+                dropdown.appendChild(opt);
+            });
+        }
+
+        wireControlButtons() {
+            document.getElementById('btn-gen-prep').addEventListener('click', () => this.fireEvent('prep_generation_requested'));
+            document.getElementById('btn-gen-worksheet').addEventListener('click', () => this.fireEvent('worksheet_generation_requested'));
+            document.getElementById('btn-gen-exam').addEventListener('click', () => this.fireEvent('exam_generation_requested'));
+        }
+
+        fireEvent(eventName) {
+            this.bus.emit(eventName, {
+                grade: document.getElementById('core-grade').value,
+                lessonId: document.getElementById('core-lesson').value,
+                totalQuestions: document.getElementById('core-count').value
+            });
+        }
+
+        wireKernelSystemEvents() {
+            this.bus.on('document_bootstrapped', (data) => {
+                this.logAudit(`[SUCCESS] تم بناء وثيقة معيارية جديدة وحفظها محلياً برقم: ${data.docId}`);
+                this.refreshLocalStoragePanel();
+                this.renderOutputSheet(data.docId);
+            });
+            this.bus.on('governance_violation', (data) => {
+                this.logAudit(`[GOVERNANCE BLOCK] ❌ محاولة مرفوضة: ${data.msg}`);
+                alert(data.msg);
+            });
+            this.bus.on('security_breach_detected', (data) => {
+                this.logAudit(`[CRITICAL SECURITY] تم اعتراض حزمة مشبوهة في قناة الحدث [${data.event}]: ${data.msg}`);
+            });
+        }
+
+        logAudit(message) {
+            const logger = document.getElementById('audit-logger');
+            logger.innerHTML += `[${new Date().toLocaleTimeString('ar-EG')}] ${message}<br>`;
+            logger.scrollTop = logger.scrollHeight;
+        }
+
+        refreshLocalStoragePanel() {
+            const panel = document.getElementById('document-manager-list');
+            panel.innerHTML = '';
+            
+            // قراءة كافة السجلات والنسخ بما فيها المحذوفة مؤقتاً لتفعيل إمكانية الاسترجاع (Rollback)
+            const allDocs = this.db.readRaw().documents;
+            
+            if (allDocs.length === 0) {
+                panel.innerHTML = '<p style="color:#64748b; font-size:0.8rem; text-align:center;">المستودع المحلي فارغ حالياً.</p>';
+                return;
+            }
+
+            allDocs.forEach(d => {
+                const card = document.createElement('div');
+                card.className = 'stored-doc-card';
+                
+                if (d.meta.isDeleted) {
+                    card.style.opacity = '0.5';
+                    card.style.border = '0.5px dashed var(--rose-600)';
+                    card.innerHTML = `
+                        <span style="color:var(--rose-600); text-decoration:line-through;">[محذوف] ${d.title.slice(0, 20)}...</span>
+                        <button class="btn-mini btn-amber" onclick="rollbackDoc('${d.meta.id}')">استرجاع 🔄</button>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <span style="cursor:pointer; color:#38bdf8;" onclick="viewDoc('${d.meta.id}')">📄 ${d.title.slice(0, 18)}...</span>
+                        <button class="btn-mini btn-danger" onclick="deleteDoc('${d.meta.id}')">حذف آمن 🗑️</button>
+                    `;
+                }
+                panel.appendChild(card);
+            });
+        }
+
+        renderOutputSheet(docId) {
+            const doc = this.db.readRaw().documents.find(d => d.meta.id === docId);
+            if (!doc || doc.meta.isDeleted) return;
+
+            document.getElementById('preview-wrapper').innerHTML = `
+                <button class="btn btn-print-floating" onclick="window.print()" style="margin-bottom: 5px; background-color: var(--slate-900); color: white; padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; border: 1px solid white;">🖨️ طباعة فورية للمستند الموحد (ISO A4 portrait)</button>
+                <div class="pcdc-a4-sheet">
+                    ${doc.headerHtml}
+                    <div class="pcdc-title">${doc.title}</div>
+                    <div>${doc.bodyHtml}</div>
+                    ${doc.footerHtml}
+                </div>
+            `;
+        }
+    }
+
+    // ============================================================================
+    // [12] دوال الحوكمة والتحكم الخارجي المعزولة عن النواة (Global Interface Handlers)
+    // ============================================================================
+    let kernelInstance;
+    window.addEventListener('DOMContentLoaded', () => { kernelInstance = SystemKernel.bootstrap(); });
+
+    function viewDoc(id) { kernelInstance.renderOutputSheet(id); }
+    
+    function deleteDoc(id) {
+        try {
+            AuthManager.getInstance().requireRole('Admin'); // قيد صارم: الحذف يتطلب رتبة الإدارة حتماً
+            LocalDB.getInstance().softDeleteDocument(id, 'الأستاذ محمد غنام');
+            kernelInstance.logAudit(`[SOFT DELETE] تفعيل الحذف الآمن للوثيقة المحددة: ${id}`);
+            kernelInstance.refreshLocalStoragePanel();
+            document.getElementById('preview-wrapper').innerHTML = `<div style="color:var(--slate-700); font-weight:bold;">[تم الحذف بنجاح] الوثيقة متوفرة في سلة المحذوفات للاسترجاع الفوري عند الطلب.</div>`;
+        } catch(e) { kernelInstance.logAudit(`[GOVERNANCE BLOCK] ❌ ${e.message}`); alert(e.message); }
+    }
+
+    function rollbackDoc(id) {
+        try {
+            AuthManager.getInstance().requireRole('Admin');
+            LocalDB.getInstance().rollbackDocument(id);
+            kernelInstance.logAudit(`[ROLLBACK SUCCESS] تم إلغاء الحذف واسترجاع الوثيقة بنجاح: ${id}`);
+            kernelInstance.refreshLocalStoragePanel();
+            kernelInstance.renderOutputSheet(id);
+        } catch(e) { kernelInstance.logAudit(`[GOVERNANCE BLOCK] ❌ ${e.message}`); alert(e.message); }
+    }
+</script>
+
+</body>
+</html>
