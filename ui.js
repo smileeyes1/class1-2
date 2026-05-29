@@ -1,53 +1,29 @@
 const UI = {
 
-  loadGrades(data){
-    const g = document.getElementById("grade");
-    g.innerHTML = "";
+    renderLessons: function (gradeData) {
+        const container = document.getElementById("lessons");
+        container.innerHTML = "";
 
-    data.grades.forEach(x=>{
-      const o = document.createElement("option");
-      o.value = x.grade;
-      o.textContent = "الصف " + x.grade;
-      g.appendChild(o);
-    });
+        gradeData.units.forEach(unit => {
+            const div = document.createElement("div");
+            div.className = "card";
 
-    g.onchange = ()=>this.loadUnits(data);
-    this.loadUnits(data);
-  },
+            let html = `<h4>${unit.unit}</h4>`;
 
-  loadUnits(data){
-    const grade = document.getElementById("grade").value;
-    const u = document.getElementById("unit");
+            unit.lessons.forEach(lesson => {
+                html += `
+                <button onclick="TeacherTools.selectLesson('${lesson}')">
+                    ${lesson}
+                </button>`;
+            });
 
-    u.innerHTML = "";
+            div.innerHTML = html;
+            container.appendChild(div);
+        });
+    },
 
-    const g = data.grades.find(x=>x.grade==grade);
-
-    g.units.forEach((x,i)=>{
-      const o = document.createElement("option");
-      o.value = i;
-      o.textContent = x.unit;
-      u.appendChild(o);
-    });
-
-    u.onchange = ()=>this.loadLessons(data);
-    this.loadLessons(data);
-  },
-
-  loadLessons(data){
-    const grade = document.getElementById("grade").value;
-    const unitIndex = document.getElementById("unit").value;
-
-    const l = document.getElementById("lesson");
-    l.innerHTML = "";
-
-    const unit = data.grades.find(x=>x.grade==grade).units[unitIndex];
-
-    unit.lessons.forEach((x,i)=>{
-      const o = document.createElement("option");
-      o.value = i;
-      o.textContent = x;
-      l.appendChild(o);
-    });
-  }
+    showOutput: function (text) {
+        document.getElementById("output").innerHTML =
+            `<pre>${text}</pre>`;
+    }
 };
