@@ -1,33 +1,107 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة المناهج الرقمية - Z-Pulse OS V2</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>LMS Offline</title>
+  <style>
+    body { font-family: Arial; background:#f4f4f4; padding:20px; }
+    .box { background:white; padding:15px; margin-bottom:10px; border-radius:8px; }
+    select, button { width:100%; padding:10px; margin-top:10px; }
+  </style>
 </head>
+
 <body>
 
-<div class="wrapper">
-    <h1>النظام التشغيلي المركزي للمناهج (Z-Pulse OS V2)</h1>
-    
-    <div class="grid">
-        <div class="book">
-            <h2>كتاب الرياضيات - الصف الأول</h2>
-            <ul id="list-maths1"></ul>
-        </div>
-        
-        <div class="book">
-            <h2>كتاب الرياضيات - الصف الثاني</h2>
-            <ul id="list-maths2"></ul>
-        </div>
-    </div>
+<h2>📘 نظام المنهاج الأوفلاين</h2>
 
-    <div class="footer">
-        منظومة رقمية مطابقة للفهرس المعتمد ٢٠٢٤ | مدرسة عاطوف المختلطة
-    </div>
+<div class="box">
+  <label>اختر الصف</label>
+  <select id="grade"></select>
+
+  <label>اختر الوحدة</label>
+  <select id="unit"></select>
+
+  <label>اختر الدرس</label>
+  <select id="lesson"></select>
+
+  <button onclick="showLesson()">عرض الدرس</button>
 </div>
 
-<script src="app.js"></script>
+<div class="box" id="output">النتيجة ستظهر هنا</div>
+
+<script>
+let data;
+
+async function loadData() {
+  const res = await fetch('./curriculum-offline.json');
+  data = await res.json();
+
+  const gradeSel = document.getElementById("grade");
+
+  data.grades.forEach(g => {
+    let opt = document.createElement("option");
+    opt.value = g.grade;
+    opt.textContent = "الصف " + g.grade;
+    gradeSel.appendChild(opt);
+  });
+
+  updateUnits();
+}
+
+function updateUnits() {
+  const grade = document.getElementById("grade").value;
+  const unitSel = document.getElementById("unit");
+  unitSel.innerHTML = "";
+
+  const g = data.grades.find(x => x.grade == grade);
+
+  g.units.forEach((u, i) => {
+    let opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = u.unit;
+    unitSel.appendChild(opt);
+  });
+
+  updateLessons();
+}
+
+function updateLessons() {
+  const grade = document.getElementById("grade").value;
+  const unitIndex = document.getElementById("unit").value;
+  const lessonSel = document.getElementById("lesson");
+
+  lessonSel.innerHTML = "";
+
+  const g = data.grades.find(x => x.grade == grade);
+  const unit = g.units[unitIndex];
+
+  unit.lessons.forEach((l, i) => {
+    let opt = document.createElement("option");
+    opt.value = i;
+    opt.textContent = l;
+    lessonSel.appendChild(opt);
+  });
+}
+
+function showLesson() {
+  const grade = document.getElementById("grade").value;
+  const unitIndex = document.getElementById("unit").value;
+  const lessonIndex = document.getElementById("lesson").value;
+
+  const g = data.grades.find(x => x.grade == grade);
+  const unit = g.units[unitIndex];
+  const lesson = unit.lessons[lessonIndex];
+
+  document.getElementById("output").innerHTML =
+    "<h3>" + lesson + "</h3>" +
+    "<p>جاهز الآن لإضافة: تحضير / اختبار / ورقة عمل</p>";
+}
+
+document.getElementById("grade").addEventListener("change", updateUnits);
+document.getElementById("unit").addEventListener("change", updateLessons);
+
+loadData();
+</script>
+
 </body>
 </html>
