@@ -1,107 +1,31 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>LMS Offline</title>
-  <style>
-    body { font-family: Arial; background:#f4f4f4; padding:20px; }
-    .box { background:white; padding:15px; margin-bottom:10px; border-radius:8px; }
-    select, button { width:100%; padding:10px; margin-top:10px; }
-  </style>
+<meta charset="UTF-8">
+<title>LMS Offline</title>
+<style>
+body{font-family:Arial;background:#f5f5f5;padding:15px}
+.box{background:#fff;padding:15px;margin:10px 0;border-radius:8px}
+select,button{width:100%;padding:10px;margin-top:10px}
+</style>
 </head>
 
 <body>
 
-<h2>📘 نظام المنهاج الأوفلاين</h2>
+<h2>📘 نظام المنهاج الفلسطيني</h2>
 
 <div class="box">
-  <label>اختر الصف</label>
-  <select id="grade"></select>
-
-  <label>اختر الوحدة</label>
-  <select id="unit"></select>
-
-  <label>اختر الدرس</label>
-  <select id="lesson"></select>
-
-  <button onclick="showLesson()">عرض الدرس</button>
+<select id="grade"></select>
+<select id="unit"></select>
+<select id="lesson"></select>
+<button onclick="App.generate()">عرض الدرس</button>
 </div>
 
-<div class="box" id="output">النتيجة ستظهر هنا</div>
+<div class="box" id="output">...</div>
 
-<script>
-let data;
-
-async function loadData() {
-  const res = await fetch('./curriculum-offline.json');
-  data = await res.json();
-
-  const gradeSel = document.getElementById("grade");
-
-  data.grades.forEach(g => {
-    let opt = document.createElement("option");
-    opt.value = g.grade;
-    opt.textContent = "الصف " + g.grade;
-    gradeSel.appendChild(opt);
-  });
-
-  updateUnits();
-}
-
-function updateUnits() {
-  const grade = document.getElementById("grade").value;
-  const unitSel = document.getElementById("unit");
-  unitSel.innerHTML = "";
-
-  const g = data.grades.find(x => x.grade == grade);
-
-  g.units.forEach((u, i) => {
-    let opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = u.unit;
-    unitSel.appendChild(opt);
-  });
-
-  updateLessons();
-}
-
-function updateLessons() {
-  const grade = document.getElementById("grade").value;
-  const unitIndex = document.getElementById("unit").value;
-  const lessonSel = document.getElementById("lesson");
-
-  lessonSel.innerHTML = "";
-
-  const g = data.grades.find(x => x.grade == grade);
-  const unit = g.units[unitIndex];
-
-  unit.lessons.forEach((l, i) => {
-    let opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = l;
-    lessonSel.appendChild(opt);
-  });
-}
-
-function showLesson() {
-  const grade = document.getElementById("grade").value;
-  const unitIndex = document.getElementById("unit").value;
-  const lessonIndex = document.getElementById("lesson").value;
-
-  const g = data.grades.find(x => x.grade == grade);
-  const unit = g.units[unitIndex];
-  const lesson = unit.lessons[lessonIndex];
-
-  document.getElementById("output").innerHTML =
-    "<h3>" + lesson + "</h3>" +
-    "<p>جاهز الآن لإضافة: تحضير / اختبار / ورقة عمل</p>";
-}
-
-document.getElementById("grade").addEventListener("change", updateUnits);
-document.getElementById("unit").addEventListener("change", updateLessons);
-
-loadData();
-</script>
+<script src="./app.js"></script>
+<script src="./ui.js"></script>
+<script src="./generator.js"></script>
 
 </body>
 </html>
