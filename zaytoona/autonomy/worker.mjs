@@ -20,9 +20,11 @@ await bootstrap();
 const decision = await supervise(statePath);
 if (decision.kind === 'ESCALATE') {
   console.log(JSON.stringify({status:'BLOCKED',reason:'HUMAN_GATE',jobId:decision.jobId,code:decision.code}));
+  process.exitCode = 2;
 } else if (decision.kind === 'IDLE') {
   console.log(JSON.stringify({status:'IDLE'}));
 } else {
   const result = await runOnce(execute);
   console.log(JSON.stringify(result));
+  if (['FAILED','BLOCKED'].includes(result.status)) process.exitCode = 1;
 }
