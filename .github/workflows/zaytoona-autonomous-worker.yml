@@ -1,6 +1,8 @@
 name: ZAYTOONA Ω autonomous worker
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: '*/5 * * * *'
