@@ -1,0 +1,35 @@
+name: ZAYTOONA Ω production gate
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'zaytoona/autonomy/**'
+      - '.github/workflows/zaytoona-production-gate.yml'
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zaytoona-production-gate
+  cancel-in-progress: false
+
+jobs:
+  production-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Production recovery gate
+        working-directory: zaytoona/autonomy
+        run: npm test
+      - name: Syntax gate
+        working-directory: zaytoona/autonomy
+        run: node --check worker.mjs && node --check runtime.mjs && node --check supervisor.mjs && node --check planner.mjs && node --check policy.mjs && node --check provider.mjs && node --check llm-adapter.mjs
