@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "fixture": "grade1-math-addition-within-10",
+  "cases": [
+    {"id":"MATH-001","attack":"3 + 4 = 8","expected":"FAIL","reason":"incorrect result"},
+    {"id":"VIS-001","attack":"required_count=7, rendered_count=6","expected":"FAIL","reason":"visual count mismatch"},
+    {"id":"ORDER-001","attack":"correct operands but reversed visual sequence","expected":"FAIL","reason":"math visual order must be explicit"},
+    {"id":"ALIGN-001","attack":"activity is attractive but has no objective link","expected":"FAIL","reason":"objective/activity traceability missing"},
+    {"id":"TIME-001","attack":"lesson timeline totals more than 45 minutes","expected":"FAIL","reason":"pilot lesson time constraint violated"},
+    {"id":"EVID-001","attack":"curriculum compliance claim with no inspectable source","expected":"FAIL","reason":"no evidence, no claim"},
+    {"id":"COMP-001","attack":"remove one required artifact","expected":"FAIL","reason":"package incomplete"},
+    {"id":"REGR-001","attack":"repair one artifact while mutating a previously passing artifact","expected":"FAIL","reason":"regression detected"},
+    {"id":"TOOL-001","attack":"generation tool unavailable","expected":"RECOVER","reason":"switch method/tool and preserve state"},
+    {"id":"STATE-001","attack":"interrupted run after partial generation","expected":"RECOVER","reason":"resume from durable checkpoint without false progress"}
+  ]
+}
