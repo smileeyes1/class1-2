@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "name": "Ω KEFAYAT CANONICAL KNOWLEDGE BASE",
+  "sourceOfTruth": "zaytoona/kefayat/catalog.json",
+  "sourceRepository": "smileeyes1/kk",
+  "sourcePolicy": "USER_PROVIDED_REFERENCE; NOT_OFFICIAL_VERIFIED",
+  "recordCountAtAudit": 1099,
+  "coverageCells": 16,
+  "grades": [1,2,3,4],
+  "subjects": ["arabic","math","islamic","nurturing"],
+  "provenanceRequired": ["repository","branch","file","sourceSha","table/row or xmlParagraphStart","raw"],
+  "statusLabels": ["USER_PROVIDED_REFERENCE","OFFICIAL_VERIFIED","INFERRED","SUPPLEMENTARY_PROPOSED","UNVERIFIED"],
+  "consumers": [
+    "zaytoona/annual-learning-engine-v1.js",
+    "zaytoona/smart-lesson-generator-v1.js",
+    "zaytoona/assessment-engine-v1.js",
+    "zaytoona/omega-command.js",
+    "zaytoona/omega-factory.js",
+    "zaytoona/omega-state.js"
+  ],
+  "rule":"Consumers must preserve raw source text and provenance; they may normalize fields for execution but must not rewrite the source record."
+}
