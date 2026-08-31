@@ -27,16 +27,15 @@
 - Kefayat synchronization job: PASS.
 - Latest sync generated **918 competency records** from **4 competency source files**, preserved the Islamic Education source index, covered grades ١–٤, and passed the catalog integrity gate.
 - Source provenance and SHA-256 hashes are stored in the catalog metadata.
+- Post-sync full assurance run: PASS.
 - Adversarial hardening identified and fixed the visual-order weakness.
 - Current branch contains the corrected fixture and user-facing slice.
-- Post-sync assurance trigger committed; the next assurance run evaluates the synchronized catalog.
 
 ## Current external verification
-- GitHub Actions assurance is now evaluating the post-sync catalog; only a completed successful run will be called PASS.
+- GitHub Actions assurance: **PASS** on the post-sync catalog.
 - Static delivery workflow exists but successful Pages deployment is **NOT VERIFIED**; recent Pages runs failed.
 
 ## Open
-- Verify post-sync CI run and fix any failures.
 - Diagnose and repair the GitHub Pages deployment gate.
 - Add runtime JSON Schema validation and conformance tests.
 - Add actual render-level visual assertions; data checks do not prove pixels/layout.
@@ -57,4 +56,4 @@
 - No system-wide efficacy claim from a single pilot.
 
 ## Next autonomous action
-Verify the post-sync CI run; if it fails, diagnose and patch without touching `main`. Then repair the Pages gate separately. Continue the same vertical slice through schema conformance → repair/regression → render assertions → teacher flow → student flow → pilot readiness. Update this checkpoint after each material gate.
+Diagnose the GitHub Pages deployment gate without touching `main`; if the failure is configuration-level and cannot be repaired through repository files, report the exact external setting required. Then continue the vertical slice through render assertions → teacher flow → student flow → pilot readiness. Update this checkpoint after each material gate.
