@@ -1,11 +1,21 @@
 {
-  "version": 1,
-  "missionId": "zaytoona-core-001",
-  "goal": "Build and continuously improve a trustworthy educational production system for Palestinian Arabic early grades.",
+  "version": 2,
+  "missionId": "zaytoona-core-002",
+  "goal": "Build and continuously improve a trustworthy competency-driven educational production system for Palestinian Arabic early grades.",
   "ownerGate": "FINAL_HUMAN_ONLY",
+  "policy": {
+    "failClosed": true,
+    "maxAttempts": 3,
+    "humanOnly": ["publish_production","change_policy","change_permissions","alter_owner_gate","delete_data"]
+  },
   "jobs": [
-    {"id":"baseline-validate","status":"READY","priority":100,"type":"validate_baseline"},
-    {"id":"math-validator","status":"READY","priority":90,"type":"validate_math","dependsOn":["baseline-validate"]},
-    {"id":"lesson-package","status":"READY","priority":80,"type":"build_lesson_package","dependsOn":["math-validator"]}
+    {"id":"baseline-validate","status":"READY","priority":120,"type":"validate_baseline"},
+    {"id":"kefayat-catalog-gate","status":"READY","priority":115,"type":"validate_kefayat_catalog","dependsOn":["baseline-validate"]},
+    {"id":"annual-plan-build","status":"READY","priority":110,"type":"build_annual_plan","dependsOn":["kefayat-catalog-gate"]},
+    {"id":"learning-core-gate","status":"READY","priority":105,"type":"validate_learning_core","dependsOn":["annual-plan-build"]},
+    {"id":"math-validator","status":"READY","priority":100,"type":"validate_math","dependsOn":["learning-core-gate"]},
+    {"id":"lesson-package","status":"READY","priority":90,"type":"build_lesson_package","dependsOn":["math-validator"]},
+    {"id":"adversarial-gate","status":"READY","priority":85,"type":"run_adversarial_gate","dependsOn":["lesson-package"]},
+    {"id":"release-evidence","status":"READY","priority":80,"type":"prepare_release_evidence","dependsOn":["adversarial-gate"]}
   ]
 }
