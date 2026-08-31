@@ -9,7 +9,7 @@
   const ar=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const getProgress=()=>{try{return JSON.parse(localStorage.getItem(STORE)||'{}')}catch{return{}}};
-  const saveProgress(p){localStorage.setItem(STORE,JSON.stringify(p));}
+  const saveProgress=p=>localStorage.setItem(STORE,JSON.stringify(p));
   function group(){const out={};for(const r of state.records){const g=String(r.grade??'');const s=String(r.subject??r.material??'');const k=g+'||'+s;(out[k]??=[]).push(r)}return out}
   function summary(){const p=getProgress();let mastered=0,active=0,support=0;for(const r of state.records){const x=p[r.id]?.state;if(x==='متقنة')mastered++;else if(x==='قيد التطور'||x==='قيد التعلم')active++;else if(x==='تحتاج دعمًا')support++}return{total:state.records.length,mastered,active,support,rate:state.records.length?Math.round(mastered/state.records.length*100):0}}
   function annualView(root){const groups=group(),s=summary();let cards='';for(const grade of grades){const subjects=Object.entries(groups).filter(([k])=>k.startsWith(String(grade)+'||'));const count=subjects.reduce((n,[,v])=>n+v.length,0);cards+=`<div class="card"><span class="kicker">الصف ${ar(grade)}</span><h2>${ar(count)} كفاية</h2><div>${subjects.map(([k,v])=>{const sub=k.split('||')[1]||'غير محدد';return`<button class="item annual-sub" data-g="${grade}" data-s="${esc(sub)}"><span><b>${esc(sub)}</b><small>${ar(v.length)} كفاية · خريطة تعلم سنوية</small></span><em class="pill">فتح</em></button>`}).join('')||'<div class="empty">لا توجد بيانات لهذا الصف.</div>'}</div></div>`}
