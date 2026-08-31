@@ -1,3 +1,4 @@
+# CI parser diagnostics trigger 2026-08-31
 #!/usr/bin/env python3
 import json, re, hashlib, subprocess, sys
 from pathlib import Path
@@ -40,8 +41,7 @@ def parse_doc(path):
   hi=max(range(min(len(rows),8)),key=lambda i:header_score(rows[i])); headers=rows[hi]
   if header_score(headers)<1: headers=[f'column_{i+1}' for i in range(len(headers))]; hi=-1
   for ri,cells in enumerate(rows[hi+1:],start=hi+1):
-   if not any(cells):continue
-   if len(cells)!=len(headers):continue
+   if not any(cells) or len(cells)!=len(headers):continue
    f=map_fields(headers,cells); meaningful=any(f.get(k) for k in ['competency','standard','indicator','value','domain'])
    if not meaningful:continue
    raw=' | '.join(cells); key=sha(f'{s}|{g}|{raw}')
