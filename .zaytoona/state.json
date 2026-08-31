@@ -101,5 +101,11 @@
     }
   ],
   "events": [],
-  "updatedAt": "2026-08-31T05:34:54.210Z"
+  "updatedAt": "2026-08-31T05:47:53.742Z",
+  "control": {
+    "lastDecision": {
+      "kind": "IDLE"
+    },
+    "decidedAt": "2026-08-31T05:47:53.742Z"
+  }
 }
