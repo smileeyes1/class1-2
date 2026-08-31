@@ -1,0 +1,1 @@
+ZAYTOONA release checkpoint: competency engine and Kefayat sync pipeline are enabled.
