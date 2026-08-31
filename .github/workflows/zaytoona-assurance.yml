@@ -16,3 +16,5 @@ jobs:
           node-version: 22
       - name: Run deterministic validator tests
         run: node --test zaytoona/tests/validator.test.mjs
+      - name: Run generation vertical slice tests
+        run: node --test zaytoona/tests/generation-e2e.test.mjs
