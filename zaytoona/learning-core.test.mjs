@@ -8,7 +8,7 @@ vm.runInNewContext(src,sandbox);
 const C=sandbox.ZLearningCore;
 assert.equal(C.version,'1.0');
 const plan=C.plan({state:'لم تبدأ',score:0},{competency:'قراءة كلمة',subject:'arabic',outcome:'يقرأ كلمة'});
-assert.deepEqual(plan.sequence,['diagnose','teach','practice','check']);
+assert.deepEqual(Array.from(plan.sequence),['diagnose','teach','practice','check']);
 const task=C.validateTask({competencyId:'a',prompt:'اختر',choices:['أ','ب'],correctIndex:1});
 assert.equal(task.ok,true);
 const db=C.submit({studentId:'s1',competencyId:'a',score:0.9,evidence:{type:'choice',value:'ب'}});
