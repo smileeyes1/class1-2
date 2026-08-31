@@ -8,6 +8,10 @@
 <title>زيتونة Ω — منظومة الكفايات والإتقان</title>
 </head>
 <body>
+<script>
+(async()=>{try{for(const k of await caches.keys())if(k!=='zaytoona-shell-v4')await caches.delete(k);if('serviceWorker'in navigator){const ws=await navigator.serviceWorker.getRegistrations();for(const w of ws)await w.unregister()}}catch(e){}})();
+</script>
 <script src="zaytoona/professional-app.js?v=20260831"></script>
+<script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js?v=4').catch(()=>{});</script>
 </body>
 </html>
