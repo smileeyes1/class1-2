@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "purpose": "Provider-agnostic, event-driven continuity contract for ZAYTOONA Ω",
+  "principles": [
+    "goal_over_method",
+    "evidence_over_claim",
+    "failure_changes_path",
+    "durable_state_over_process_liveness",
+    "human_gate_for_high_impact_decisions"
+  ],
+  "state_machine": [
+    "MISSION_CREATED",
+    "PLANNED",
+    "EXECUTING",
+    "VERIFYING",
+    "RED_TEAM",
+    "REPAIR",
+    "REGRESSION",
+    "CHECKPOINTED",
+    "COMPLETED",
+    "HUMAN_GATE",
+    "BLOCKED"
+  ],
+  "recovery": {
+    "heartbeat_required": true,
+    "lease_required": true,
+    "fencing_required": true,
+    "resume_from_checkpoint": true,
+    "duplicate_completion_forbidden": true,
+    "retry_requires_material_change": true
+  },
+  "provider_policy": {
+    "primary_is_replaceable": true,
+    "fallback_required": true,
+    "deterministic_fallback_allowed": true
+  },
+  "evidence_policy": {
+    "PASS": "evidence_required",
+    "FAIL": "failure_evidence_required",
+    "BLOCKED": "reasonable_alternatives_exhausted",
+    "NOT_TESTED": "no_test_claimed"
+  },
+  "stop_conditions": [
+    "goal_satisfied_with_sufficient_evidence",
+    "unsafe_or_unauthorized_action",
+    "policy_boundary",
+    "irreversible_high_impact_decision_without_human_gate",
+    "reasonable_alternatives_exhausted"
+  ],
+  "required_regression_after_repair": true
+}
