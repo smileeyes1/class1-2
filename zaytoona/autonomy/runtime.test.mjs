@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { assertTransition, chooseReadyJob } from './state-machine.mjs';
+import { assertTransition, chooseReadyJob, recoverOrphanedJobs } from './state-machine.mjs';
 
 test('dependencies gate ready jobs', () => {
   const jobs=[{id:'a',status:'READY',priority:1},{id:'b',status:'READY',priority:9,dependsOn:['a']}];
@@ -14,6 +14,21 @@ test('dependencies gate ready jobs', () => {
 
 test('invalid transitions fail closed', () => {
   assert.throws(()=>assertTransition('PASSED','RUNNING'));
+});
+
+test('expired lease is recovered to READY for restart', () => {
+  const jobs=[{id:'x',status:'RUNNING',lease:{worker:99,fence:'old',expiresAt:'2000-01-01T00:00:00.000Z'}}];
+  recoverOrphanedJobs(jobs, Date.parse('2026-01-01T00:00:00.000Z'));
+  assert.equal(jobs[0].status,'READY');
+  assert.equal(jobs[0].lease,null);
+  assert.equal(jobs[0].recovery.reason,'EXPIRED_LEASE');
+});
+
+test('live lease is not stolen', () => {
+  const jobs=[{id:'x',status:'RUNNING',lease:{worker:99,fence:'live',expiresAt:'2027-01-01T00:00:00.000Z'}}];
+  recoverOrphanedJobs(jobs, Date.parse('2026-01-01T00:00:00.000Z'));
+  assert.equal(jobs[0].status,'RUNNING');
+  assert.equal(jobs[0].lease.fence,'live');
 });
 
 test('state path can be isolated for crash/restart tests', async () => {
