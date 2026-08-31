@@ -1,4 +1,4 @@
-/* ZAYTOONA Ω COMMAND v1.0 — user-facing mission control. */
+/* ZAYTOONA Ω COMMAND v1.1 — user-facing mission control with durable resume. */
 (function(global){'use strict';
  const S=()=>global.ZaytoonaOmegaState,F=()=>global.ZaytoonaOmegaFactory;
  const jobs=[
@@ -8,7 +8,8 @@
   {id:'persistence',title:'فحص الاستمرارية',dependsOn:['structure'],run:async()=>{const marker='zaytoona:omega:selftest';localStorage.setItem(marker,'ok');if(localStorage.getItem(marker)!=='ok')throw Error('التخزين المحلي فشل');localStorage.removeItem(marker);return 'persistence-ok'}},
   {id:'math',title:'فحص الرياضيات العربية',dependsOn:['source'],run:async()=>{const bad=/\b[0-9]+\b/.test(document.body.innerText);if(bad)throw Error('تم العثور على أرقام غربية في واجهة المستخدم');return 'arabic-numerals-ok'}}
  ];
- async function start(mission='تشغيل دورة زيتونة الذاتية'){const s=S();s.setMission(mission);s.event('mission.started',{mission});const result=await F().execute(jobs,{mission});s.setStatus(result.ok?'go':'blocked');s.setPhase(result.ok?'release-ready':'recovery');s.checkpoint(result.ok?'GO':'BLOCKED',result);return result}
- function resume(){const st=S().get();return st.status==='running'?start(st.mission||'استئناف المهمة'):start(st.mission||'استئناف آخر مهمة')}
+ async function executeMission(mission,resume){const s=S();if(resume)s.resumeMission();else s.setMission(mission);s.event(resume?'mission.resumed':'mission.started',{mission:s.get().mission,runId:s.get().runId});const result=await F().execute(jobs,{mission:s.get().mission,runId:s.get().runId,resume:!!resume});s.setStatus(result.ok?'go':'blocked');s.setPhase(result.ok?'release-ready':'recovery');s.checkpoint(result.ok?'GO':'BLOCKED',result);return result}
+ async function start(mission='تشغيل دورة زيتونة الذاتية'){return executeMission(mission,false)}
+ async function resume(){const st=S().get();if(!st.mission){return start('استئناف آخر مهمة')}return executeMission(st.mission,true)}
  global.ZaytoonaOmegaCommand={start,resume,state:()=>S().get()};
 })(window);
