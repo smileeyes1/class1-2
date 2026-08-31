@@ -1,9 +1,9 @@
 const SOURCES = [
-  ['arabic','GEM_KB_ARABIC_GRADES_1-4.md'],
-  ['math','GEM_KB_MATH_GRADES_1-4.md'],
-  ['islamic_education','GEM_KB_ISLAMIC_EDUCATION_GRADES_1-4.md'],
-  ['islamic','GEM_KB_ISLAMIC_GRADES_1-4.md'],
-  ['nurturing','GEM_KB_NURTURING_GRADES_1-4.md'],
+  ['arabic','GEM_KB_ARABIC_GRADES_1-4.md','competency'],
+  ['math','GEM_KB_MATH_GRADES_1-4.md','competency'],
+  ['islamic_education','GEM_KB_ISLAMIC_EDUCATION_GRADES_1-4.md','index'],
+  ['islamic','GEM_KB_ISLAMIC_GRADES_1-4.md','competency'],
+  ['nurturing','GEM_KB_NURTURING_GRADES_1-4.md','competency'],
 ];
 const BASE = 'https://raw.githubusercontent.com/smileeyes1/kefayat/main/';
 const fs = await import('node:fs/promises');
@@ -51,7 +51,7 @@ function parse(text, subject){
     const cols=line.split('|').map(x=>x.trim());
     if(isSeparator(cols)) continue;
     const kind=headerKind(cols);
-    if(kind==='schema'){ const detected=schemaFrom(cols); if(detected.domain>=0&&detected.subcompetency>=0){ schema={...schema,...detected}; } continue; }
+    if(kind==='schema'){ const detected=schemaFrom(cols); if(detected.domain>=0&&detected.subcompetency>=0) schema={...schema,...detected}; continue; }
     if(kind==='levels'){ const detected=schemaFrom(cols); schema={...schema,...detected}; continue; }
     if(!schema) schema=fallbackSchema(cols);
     if(!schema || !grade || !table) continue;
@@ -61,16 +61,19 @@ function parse(text, subject){
   }
   return rows;
 }
-const all=[]; const sourceMeta=[];
-for(const [subject,file] of SOURCES){
+const all=[]; const sourceMeta=[]; const sourceDocuments=[];
+for(const [subject,file,kind] of SOURCES){
   const res=await fetch(BASE+file); if(!res.ok) throw new Error(`${file}: HTTP ${res.status}`);
-  const text=await res.text(); const rows=parse(text,subject);
-  sourceMeta.push({subject,file,url:BASE+file,bytes:text.length,sha256:crypto.createHash('sha256').update(text,'utf8').digest('hex'),records:rows.length}); all.push(...rows);
+  const text=await res.text(); const hash=crypto.createHash('sha256').update(text,'utf8').digest('hex');
+  if(kind==='index') sourceDocuments.push({subject,file,url:BASE+file,bytes:text.length,sha256:hash,text});
+  const rows=kind==='competency'?parse(text,subject):[];
+  sourceMeta.push({subject,file,kind,url:BASE+file,bytes:text.length,sha256:hash,records:rows.length});
+  all.push(...rows);
 }
 const grades=[...new Set(all.map(r=>r.grade).filter(Boolean))].sort((a,b)=>a-b);
-const catalog={schemaVersion:'1.2.0',generatedAt:new Date().toISOString(),source:{repository:'smileeyes1/kefayat',branch:'main',baseUrl:BASE,authority:'external-reference; preserve source text'},subjects:SOURCES.map(x=>x[0]),grades,sourceMeta,recordCount:all.length,records:all};
+const catalog={schemaVersion:'1.3.0',generatedAt:new Date().toISOString(),source:{repository:'smileeyes1/kefayat',branch:'main',baseUrl:BASE,authority:'external-reference; preserve source text'},subjects:SOURCES.map(x=>x[0]),grades,sourceMeta,sourceDocuments,recordCount:all.length,records:all};
 const outDir=path.resolve(process.argv[2]||'zaytoona/kefayat');
 await fs.mkdir(outDir,{recursive:true});
 await fs.writeFile(path.join(outDir,'catalog.json'),JSON.stringify(catalog,null,2),'utf8');
 await fs.writeFile(path.join(outDir,'catalog.min.json'),JSON.stringify(catalog),'utf8');
-console.log(`Generated ${all.length} competency records from ${SOURCES.length} source files across grades ${grades.join(', ')}.`);
+console.log(`Generated ${all.length} competency records from ${SOURCES.filter(x=>x[2]==='competency').length} competency sources plus ${sourceDocuments.length} preserved source indexes across grades ${grades.join(', ')}.`);
