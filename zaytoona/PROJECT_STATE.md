@@ -1,48 +1,52 @@
-# ZAYTOUNA Ω — PROJECT STATE
+# ZAYTOONA Ω — PROJECT STATE
 
 **Version:** v1.0 vertical-slice execution baseline
 **Branch:** zaytoona-omega-v1
 **PR:** #1 (draft, open)
 **Primary test case:** الصف الأول → الرياضيات → الجمع ضمن ١٠
-**Current gate:** G3 preparation — generation, deterministic validation, executable red-team and orchestration are implemented; external CI and real rendering/pilot remain unproven.
+**Current gate:** G3 preparation — end-user vertical slice implemented; assurance run is queued; system-wide release remains NO-GO.
 
 ## Completed
 - Architecture baseline and canonical lesson schema.
 - Deterministic Grade 1 addition-within-10 generator and fixture.
 - Deterministic validator for structure, time, alignment, evidence, arithmetic, explicit math visual order, and visual counts.
-- Schema formalization for structured math operations and visual counts.
-- Executable generation E2E tests.
-- Executable adversarial tests for arithmetic, visual order, visual count, alignment, time and evidence.
-- Autonomous vertical-slice orchestrator with an executable red-team gate.
-- CI workflow covering validator, generation, red-team/repair, and orchestrator tests.
-- Assurance report and durable project checkpoint.
+- Executable generation E2E and adversarial tests.
+- Autonomous vertical-slice orchestrator.
+- CI assurance workflow.
+- Durable project checkpoint and assurance report.
+- User-facing Arabic RTL teacher/student/assessment shell with print support and local score/build persistence.
+- Installable manifest and offline service-worker shell.
+- Static delivery workflow for GitHub Pages.
 - All changes remain isolated from `main`.
 
-## Verification
-- Local deterministic baseline/generation tests: PASS, 7/7.
-- A local adversarial run exposed a real weakness: optional visual-order checks did not reject a wrong order. The validator was hardened to require the explicit contract whenever structured math operations exist.
-- Adversarial tests were then strengthened to assert the exact failure class.
-- Current implementation was committed after the hardening.
-- GitHub Actions: NOT VERIFIED; the connected API currently reports no workflow run for the latest branch commit.
+## Verified
+- Previous local deterministic baseline/generation tests: PASS, 7/7.
+- Adversarial hardening identified and fixed the visual-order weakness.
+- Current branch contains the corrected fixture and user-facing slice.
+
+## Current external verification
+- GitHub Actions has accepted the latest assurance workflow run for commit `c1c335f0...`; at the latest observation it was QUEUED, so CI is **NOT VERIFIED** until a completed successful run is recorded.
+- Static delivery workflow exists but successful Pages deployment is **NOT VERIFIED**.
 
 ## Open
-- Obtain/verify CI execution.
-- Add a real JSON Schema validator runtime and schema-conformance tests.
-- Add actual render-level visual assertions; structured checks alone do not prove pixels/layout.
-- Build deterministic repair planning with cause localization and regression manifests.
-- Add durable runtime checkpoint implementation rather than documentation only.
-- Implement minimum-intervention teacher UI.
-- Implement student learning and assessment flow.
+- Verify latest CI run and fix any failures.
+- Add runtime JSON Schema validation and conformance tests.
+- Add actual render-level visual assertions; data checks do not prove pixels/layout.
+- Implement real repair planning, cause localization, regression manifests and retry policy.
+- Implement durable runtime checkpoint/state in the application.
+- Expand teacher minimum-intervention flow beyond the first test case.
+- Expand student learning paths and evidence-aware assessment.
 - Add evidence-aware curriculum resolver over authoritative source artifacts.
-- Run G1–G3 end-to-end in the real repository environment.
-- Conduct G4 classroom pilot.
+- Run G1–G3 end-to-end in the repository environment.
+- Conduct G4 classroom pilot and collect evidence.
+- Only after evidence supports it: release and scale to additional subjects/grades.
 
 ## Release rules
-- Any critical math, visual, evidence or traceability failure = NO-GO.
+- Critical math, visual, evidence or traceability failure = NO-GO.
 - No repair acceptance without revalidation and regression.
-- No claim of CI success without a recorded CI run.
-- No claim of visual correctness from data checks alone.
-- No claim of system-wide educational efficacy from a single pilot.
+- No CI success claim without a recorded successful run.
+- No visual correctness claim from structured data alone.
+- No system-wide efficacy claim from a single pilot.
 
 ## Next autonomous action
-Continue hardening the same vertical slice: schema-conformance test → repair/regression engine → render-level assertions → teacher minimum-intervention flow. Preserve `main`, keep checkpoints current, and use PASS/FAIL/BLOCKED/NOT TESTED truth states.
+Verify the latest CI run; if it fails, diagnose and patch without touching `main`. Then continue the same vertical slice through schema conformance → repair/regression → render assertions → teacher flow → student flow → pilot readiness. Update this checkpoint after each material gate.
