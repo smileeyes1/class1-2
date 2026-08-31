@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createRegistry, kefayatModule, missionContract, runPipeline, validateCatalog, releaseGate, transition, recover, recoveryDecision } from './meta-system/index.mjs';
+const catalog={recordCount:16,records:[...Array(16)].map((_,i)=>({id:`k${i}`,source:['arabic','math','islamic','nurturing'][i%4],grade:Math.floor(i/4)+1,raw:'raw'}) )};
+test('contracts reject invalid jobs',()=>assert.throws(()=>missionContract({missionId:'x'}),/INVALID_MISSION/));
+test('registry rejects duplicate modules',()=>{const r=createRegistry(),m=kefayatModule({run:async()=>({}),verify:async()=>({ok:true})});r.register(m);assert.throws(()=>r.register(m),/DUPLICATE_MODULE/)});
+test('state machine blocks invalid transition',()=>assert.throws(()=>transition({status:'PASSED'},'READY'),/INVALID_TRANSITION/));
+test('recovery expires leases',()=>{const s=recover({jobs:[{id:'x',status:'RUNNING',lease:{expiresAt:'2000-01-01T00:00:00Z'}}]});assert.equal(s.jobs[0].status,'READY')});
+test('recovery is bounded',()=>assert.equal(recoveryDecision({attempts:3,maxAttempts:3}).action,'BLOCKED'));
+test('kefayat catalog validates full grade-subject matrix',()=>assert.equal(validateCatalog(catalog).ok,true));
+test('orchestrator executes Kefayat module',async()=>{const r=createRegistry();r.register(kefayatModule({run:async job=>({id:job.id,ok:true}),verify:async result=>({ok:result.ok})}));const out=await runPipeline({registry:r,state:{jobs:[{id:'k',type:'validate_kefayat_catalog',module:'kefayat',status:'READY',priority:1}]}});assert.equal(out.ok,true);assert.equal(out.state.jobs[0].status,'PASSED')});
+test('release gate fails closed',()=>assert.equal(releaseGate({catalog,modules:[],state:{jobs:[{status:'READY',id:'k'}]}}).status,'NO-GO'));
+test('release gate passes valid pipeline',()=>assert.equal(releaseGate({catalog,modules:[kefayatModule({run:async()=>{},verify:async()=>({ok:true})})],state:{jobs:[{status:'PASSED',id:'k'}]}}).status,'GO'));
