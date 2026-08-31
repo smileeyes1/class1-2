@@ -41,9 +41,13 @@ jobs:
         run: |
           set -euo pipefail
           node --check zaytoona/learning-core-v3.js
+          node --check zaytoona/annual-learning-engine-v1.js
           node --check zaytoona/autonomous-assurance-v1.js
           node --check zaytoona/autonomy/executors.mjs
           node --check zaytoona/autonomy/policy.mjs
+
+      - name: Annual learning engine regression
+        run: node --test zaytoona/tests/annual-learning-engine.test.mjs
 
       - name: Autonomous regression suite
         working-directory: zaytoona/autonomy
