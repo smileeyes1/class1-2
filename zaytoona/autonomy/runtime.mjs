@@ -6,27 +6,34 @@ const STATE = process.env.ZAYTOONA_STATE || './.zaytoona/state.json';
 const EVIDENCE = process.env.ZAYTOONA_EVIDENCE || './.zaytoona/evidence.ndjson';
 const HEARTBEAT_MS = Math.max(5000, Number(process.env.ZAYTOONA_HEARTBEAT_MS || 30000));
 const MAX_ATTEMPTS = Math.max(1, Number(process.env.ZAYTOONA_MAX_ATTEMPTS || 3));
+const LEASE_MS = Math.max(10000, Number(process.env.ZAYTOONA_LEASE_MS || 120000));
 
 async function evidence(event) {
-  await mkdir(new URL('.', `file://${process.cwd()}/.zaytoona/`), {recursive:true}).catch(()=>{});
+  await mkdir(new URL('.', `file://${process.cwd()}/.zaytoona/`), {recursive:true});
   await writeFile(EVIDENCE, JSON.stringify({...event, at:new Date().toISOString()})+'\n', {encoding:'utf8', flag:'a'});
 }
 
-async function runOnce(executor = async job => ({ok:true, result:{jobId:job.id}})) {
+function leaseIsLive(job) { return Boolean(job.lease?.expiresAt && Date.parse(job.lease.expiresAt) > Date.now()); }
+
+export async function runOnce(executor) {
+  if (typeof executor !== 'function') return {status:'BLOCKED',reason:'NO_EXECUTOR_CONFIGURED'};
   let state = await loadState(STATE);
   const job = chooseReadyJob(state.jobs);
   if (!job) return {status:'IDLE'};
+  if (leaseIsLive(job) && job.lease.worker !== process.pid) return {status:'BUSY',jobId:job.id};
 
   job.status = assertTransition(job.status,'CLAIMED');
-  job.lease = {worker:process.pid, acquiredAt:new Date().toISOString()};
+  const fence = `${process.pid}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
+  job.lease = {worker:process.pid,fence,acquiredAt:new Date().toISOString(),expiresAt:new Date(Date.now()+LEASE_MS).toISOString()};
   state = await saveState(STATE,state);
-  await evidence({type:'CLAIMED',jobId:job.id,worker:process.pid});
+  await evidence({type:'CLAIMED',jobId:job.id,worker:process.pid,fence});
 
   try {
     job.status = assertTransition(job.status,'RUNNING');
     job.attempts = (job.attempts||0)+1;
     state = await saveState(STATE,state);
-    const result = await executor(job);
+    const result = await executor({...job,fence});
+    if (job.lease?.fence !== fence) throw new Error('LEASE_FENCED');
     job.status = assertTransition(job.status,'VERIFYING');
     job.evidence = result;
     if (!result?.ok) throw new Error('Executor returned non-ok result');
@@ -37,17 +44,12 @@ async function runOnce(executor = async job => ({ok:true, result:{jobId:job.id}}
     return {status:'PASSED',jobId:job.id};
   } catch (error) {
     job.error = String(error?.message || error);
-    job.status = assertTransition(job.status,'FAILED');
+    if (job.status === 'RUNNING' || job.status === 'VERIFYING') job.status = assertTransition(job.status,'FAILED');
     state = await saveState(STATE,state);
     await evidence({type:'FAILED',jobId:job.id,error:job.error,attempts:job.attempts});
     job.status = assertTransition(job.status,'RECOVERING');
-    if (job.attempts >= MAX_ATTEMPTS) {
-      job.status = assertTransition(job.status,'BLOCKED');
-      job.lease = null;
-    } else {
-      job.status = assertTransition(job.status,'READY');
-      job.lease = null;
-    }
+    if (job.attempts >= MAX_ATTEMPTS) { job.status = assertTransition(job.status,'BLOCKED'); job.lease = null; }
+    else { job.status = assertTransition(job.status,'READY'); job.lease = null; }
     await saveState(STATE,state);
     await evidence({type:'RECOVERY',jobId:job.id,nextStatus:job.status});
     return {status:job.status,jobId:job.id};
@@ -55,9 +57,8 @@ async function runOnce(executor = async job => ({ok:true, result:{jobId:job.id}}
 }
 
 export async function start(executor) {
-  let stopped = false;
-  const stop = () => { stopped = true; };
-  process.on('SIGTERM', stop); process.on('SIGINT', stop);
+  let stopped = false; const stop = () => { stopped = true; };
+  process.on('SIGTERM',stop); process.on('SIGINT',stop);
   while (!stopped) {
     await runOnce(executor).catch(async e => evidence({type:'RUNTIME_ERROR',error:String(e?.message||e)}));
     if (!stopped) await new Promise(r=>setTimeout(r,HEARTBEAT_MS));
