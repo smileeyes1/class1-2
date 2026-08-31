@@ -1,0 +1,16 @@
+{
+  "status": "SUPPLEMENTARY_PROPOSED",
+  "officiality": "NOT_ATTRIBUTED_TO_MINISTRY",
+  "ageBand": "grades-1-4",
+  "principles": [
+    {"id":"truthfulness","value":"الصدق","observable":"يقول ما حدث دون اختلاق ويصحح الخطأ عند اكتشافه"},
+    {"id":"trust","value":"الأمانة","observable":"يحافظ على الأدوات والمواد ويؤدي المهمة الموكلة إليه"},
+    {"id":"respect","value":"احترام الآخرين","observable":"ينتظر دوره ويستخدم لغة محترمة ولا يسخر من زميل"},
+    {"id":"cooperation","value":"التعاون","observable":"يشارك الموارد ويكمل دورًا محددًا داخل الفريق"},
+    {"id":"responsibility","value":"المسؤولية","observable":"ينجز ما عليه ويتحمل نتيجة اختياره ويطلب المساعدة عند الحاجة"},
+    {"id":"mercy","value":"الرحمة","observable":"يساعد من يحتاج ويختار استجابة غير مؤذية"},
+    {"id":"justice","value":"العدل","observable":"يطبق قاعدة واحدة على نفسه وعلى غيره"},
+    {"id":"cleanliness","value":"النظافة والمحافظة","observable":"يحافظ على نظافة مكان التعلم ويعيد الأدوات إلى موضعها"}
+  ],
+  "integrationRule":"تظهر القيمة فقط عندما تخدم هدف المادة وتتحول إلى سلوك قابل للملاحظة؛ لا تُستخدم كحشو وعظي ولا تعد جزءًا من الكفاية الأصلية."
+}
