@@ -2,6 +2,7 @@ import { mkdir } from 'node:fs/promises';
 import { loadState, saveState } from './store.mjs';
 import { execute } from './executors.mjs';
 import { runOnce } from './runtime.mjs';
+import { supervise } from './supervisor.mjs';
 
 const statePath = process.env.ZAYTOONA_STATE || './.zaytoona/state.json';
 const missionPath = process.env.ZAYTOONA_MISSION || './mission.json';
@@ -16,5 +17,12 @@ async function bootstrap() {
 }
 
 await bootstrap();
-const result = await runOnce(execute);
-console.log(JSON.stringify(result));
+const decision = await supervise(statePath);
+if (decision.kind === 'ESCALATE') {
+  console.log(JSON.stringify({status:'BLOCKED',reason:'HUMAN_GATE',jobId:decision.jobId,code:decision.code}));
+} else if (decision.kind === 'IDLE') {
+  console.log(JSON.stringify({status:'IDLE'}));
+} else {
+  const result = await runOnce(execute);
+  console.log(JSON.stringify(result));
+}
