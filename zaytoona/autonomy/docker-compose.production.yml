@@ -1,0 +1,24 @@
+services:
+  zaytoona-runtime:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 20s
+    environment:
+      NODE_ENV: production
+      ZAYTOONA_POLL_MS: ${ZAYTOONA_POLL_MS:-30000}
+    volumes:
+      - zaytoona-state:/app/.zaytoona
+      - zaytoona-artifacts:/app/artifacts
+    healthcheck:
+      test: ["CMD", "node", "-e", "const fs=require('fs'); const p='/app/.zaytoona/heartbeat.json'; if(!fs.existsSync(p)) process.exit(1); const h=JSON.parse(fs.readFileSync(p)); const age=Date.now()-Date.parse(h.ts); if(age>120000) process.exit(1); if(['DAEMON_ERROR','STOPPED'].includes(h.status)) process.exit(1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  zaytoona-state:
+  zaytoona-artifacts:
