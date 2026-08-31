@@ -2,6 +2,10 @@ name: ZAYTOONA Kefayat Sync On Push
 on:
   push:
     branches: [main]
+    paths:
+      - 'scripts/sync-kefayat.mjs'
+      - 'scripts/kefayat-regression.mjs'
+      - '.github/workflows/zaytoona-kefayat-sync-on-push.yml'
   workflow_dispatch:
 permissions:
   contents: write
@@ -10,18 +14,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout Kefayat source
+        uses: actions/checkout@v4
+        with:
+          repository: smileeyes1/kefayat
+          ref: main
+          path: kefayat-source
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - name: Build complete Kefayat catalog
+          node-version: 24
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build complete Kefayat knowledge bases from DOCX
+        working-directory: kefayat-source
+        run: |
+          python -m pip install python-docx
+          python tools/build_gem_kb.py
+      - name: Build complete Zaytoona catalog
+        env:
+          KEFAYAT_LOCAL_DIR: kefayat-source
         run: node scripts/sync-kefayat.mjs
       - name: Validate catalog
-        run: node -e "const fs=require('fs');const x=JSON.parse(fs.readFileSync('zaytoona/kefayat/catalog.json','utf8'));if(!x.recordCount||x.recordCount!==x.records.length)process.exit(1);if(!x.records.every(r=>r.id&&r.source&&r.raw))process.exit(1);console.log('PASS',x.recordCount)"
+        run: node scripts/kefayat-regression.mjs
       - name: Persist catalog safely
         run: |
           git config user.name 'zaytoona-autonomy[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add zaytoona/kefayat/catalog.json zaytoona/kefayat/catalog.min.json
+          git add zaytoona/kefayat/catalog.json zaytoona/kefayat/catalog.min.json zaytoona/kefayat/sync-manifest.json
           if git diff --cached --quiet; then echo 'Catalog unchanged'; exit 0; fi
           git commit -m 'chore(zaytoona): refresh Kefayat competency catalog'
           git fetch origin main
