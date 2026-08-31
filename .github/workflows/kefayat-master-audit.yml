@@ -1,0 +1,68 @@
+name: Ω KEFAYAT MASTER AUDIT
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/kefayat-master-audit.py'
+      - '.github/workflows/kefayat-master-audit.yml'
+      - 'zaytoona/**'
+      - 'package.json'
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    outputs:
+      audit_status: ${{ steps.audit.outputs.status }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install DOCX parser
+        run: python -m pip install --disable-pip-version-check python-docx
+      - name: Run master audit
+        id: audit
+        shell: bash
+        run: |
+          set +e
+          python scripts/kefayat-master-audit.py | tee /tmp/audit.json
+          code=${PIPESTATUS[0]}
+          python - <<'PY'
+          import json,os
+          d=json.load(open('/tmp/audit.json',encoding='utf-8'))
+          print('audit_status='+d['status'])
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('status='+d['status']+'\n')
+          PY
+          exit $code
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kefayat-master-audit
+          path: zaytoona/kefayat/
+      - name: Node regression
+        if: steps.audit.outcome == 'success'
+        run: npm run test:all
+      - name: End-to-End
+        if: steps.audit.outcome == 'success'
+        run: node scripts/zaytoona-e2e.mjs
+      - name: Commit canonical catalog only after PASS
+        if: steps.audit.outcome == 'success'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add zaytoona/kefayat/catalog.json zaytoona/kefayat/catalog.min.json zaytoona/kefayat/master-audit.json
+          git diff --cached --quiet || git commit -m 'chore(zaytoona): publish audited Kefayat canonical catalog'
+          git push
+  gate:
+    needs: audit
+    if: needs.audit.outputs.audit_status == 'PASS'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm run test:release
