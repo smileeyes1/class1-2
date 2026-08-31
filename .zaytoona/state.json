@@ -101,11 +101,18 @@
     }
   ],
   "events": [],
-  "updatedAt": "2026-08-31T06:22:12.885Z",
+  "updatedAt": "2026-08-31T09:17:55.914Z",
   "control": {
     "lastDecision": {
       "kind": "IDLE"
     },
-    "decidedAt": "2026-08-31T06:22:12.884Z"
+    "decidedAt": "2026-08-31T09:17:55.914Z",
+    "nextWake": {
+      "version": 1,
+      "reason": "IDLE",
+      "delayMs": 3600000,
+      "nextWakeAt": "2026-08-31T10:17:55.913Z",
+      "computedAt": "2026-08-31T09:17:55.913Z"
+    }
   }
 }
