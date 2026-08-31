@@ -1,0 +1,20 @@
+name: ZAYTOONA Learning Core
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check
+        run: node --check zaytoona/learning-core.js
+      - name: Run learning core test
+        run: node zaytoona/learning-core.test.mjs
