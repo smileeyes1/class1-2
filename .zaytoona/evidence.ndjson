@@ -1,2 +1,4 @@
 {"type":"CLAIMED","jobId":"baseline-validate","worker":2308,"fence":"2308:1788154297582:hajx1peg3yi","at":"2026-08-31T05:31:37.582Z"}
 {"type":"PASSED","jobId":"baseline-validate","evidence":{"ok":true,"type":"validate_baseline","evidence":"baseline contract present"},"at":"2026-08-31T05:31:37.584Z"}
+{"type":"CLAIMED","jobId":"math-validator","worker":2317,"fence":"2317:1788154324370:guruj91j91","at":"2026-08-31T05:32:04.371Z"}
+{"type":"PASSED","jobId":"math-validator","evidence":{"ok":true,"type":"validate_math","validation":{"ok":true,"missing":[],"duration":45,"math":{"ok":true,"failures":[],"checked":5}}},"at":"2026-08-31T05:32:04.373Z"}

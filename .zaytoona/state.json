@@ -50,12 +50,28 @@
     },
     {
       "id": "math-validator",
-      "status": "READY",
+      "status": "PASSED",
       "priority": 90,
       "type": "validate_math",
       "dependsOn": [
         "baseline-validate"
-      ]
+      ],
+      "lease": null,
+      "attempts": 1,
+      "evidence": {
+        "ok": true,
+        "type": "validate_math",
+        "validation": {
+          "ok": true,
+          "missing": [],
+          "duration": 45,
+          "math": {
+            "ok": true,
+            "failures": [],
+            "checked": 5
+          }
+        }
+      }
     },
     {
       "id": "lesson-package",
@@ -68,5 +84,5 @@
     }
   ],
   "events": [],
-  "updatedAt": "2026-08-31T05:31:37.584Z"
+  "updatedAt": "2026-08-31T05:32:04.373Z"
 }
