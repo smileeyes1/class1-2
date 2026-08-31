@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "name": "ZAYTOONA Ω — Annual Mastery System",
+  "scope": {"grades":[1,2,3,4],"subjects":"all","source":"smileeyes1/kefayat"},
+  "annualCycle": [
+    "تحديد الكفايات المطلوبة لكل صف ومادة",
+    "ترتيب المتطلبات السابقة والمتطلبات اللاحقة",
+    "توزيع الكفايات على العام الدراسي",
+    "تحويل كل كفاية إلى نواتج تعلم قابلة للملاحظة",
+    "بناء خبرات تعلم وتدريب وتقويم",
+    "جمع أدلة الأداء",
+    "حكم الإتقان",
+    "تشخيص الفجوة",
+    "تدخل علاجي أو إثرائي",
+    "إعادة التقويم",
+    "متابعة التقدم والتغطية السنوية",
+    "مراجعة نهاية الفصل والعام"
+  ],
+  "requiredSystems": {
+    "competencyCatalog": true,
+    "annualPlanner": true,
+    "learningPath": true,
+    "lessonGenerator": true,
+    "practiceEngine": true,
+    "assessmentEngine": true,
+    "masteryEngine": true,
+    "interventionEngine": true,
+    "enrichmentEngine": true,
+    "progressPortfolio": true,
+    "teacherDashboard": true,
+    "studentJourney": true,
+    "evidenceLedger": true,
+    "coverageMonitor": true,
+    "sourceIntegrity": true,
+    "offlineFirst": true
+  },
+  "masteryRule": {"defaultThreshold":0.8,"states":["لم تبدأ","قيد التعلم","قيد التطور","متقنة","تحتاج دعمًا"]},
+  "nonNegotiables": [
+    "لا تعتبر الكفاية متقنة دون دليل أداء كافٍ",
+    "لا تحذف كفاية من المصدر دون سبب موثق",
+    "لا تحصر النظام في مادة أو موضوع واحد",
+    "لا تجعل النشاط منفصلًا عن الكفاية",
+    "لا تجعل الاختبار غاية مستقلة عن التعلم",
+    "لا تسقط التقدم عند تحديث المحتوى",
+    "تحافظ الرياضيات على الترتيب البصري الصريح للأعداد والعمليات",
+    "تستخدم العربية والأعداد الشرقية في المحتوى العربي الموجه للطالب",
+    "تدعم الفروق الفردية والتدخل العلاجي والإثراء"
+  ]
+}

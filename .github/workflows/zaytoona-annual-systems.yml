@@ -1,0 +1,20 @@
+name: Zaytoona Annual Systems Guard
+on:
+  push:
+    branches: ["main", "zaytoona/annual-mastery-systems-v1"]
+  pull_request:
+    branches: ["main"]
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check annual engine
+        run: node --check zaytoona/annual-mastery-engine.js
+      - name: Validate annual contract
+        run: node -e "const fs=require('fs'); const x=JSON.parse(fs.readFileSync('zaytoona/annual-mastery-system.json','utf8')); if(x.scope.grades.join(',')!=='1,2,3,4') process.exit(1); if(!x.requiredSystems.annualPlanner||!x.requiredSystems.masteryEngine||!x.requiredSystems.assessmentEngine) process.exit(1); console.log('ANNUAL_SYSTEM_CONTRACT_OK')"
+      - name: Validate app entry wiring
+        run: node -e "const x=fs=require('fs').readFileSync('index.html','utf8'); if(!x.includes('annual-mastery-engine.js')||!x.includes('annual-system.js')) process.exit(1); console.log('ANNUAL_WIRING_OK')"
