@@ -1,0 +1,17 @@
+{
+  "status": "SUPPLEMENTARY_PROPOSED",
+  "officiality": "NOT_ATTRIBUTED_TO_MINISTRY",
+  "context": "Palestinian school context, grades 1-4",
+  "domains": [
+    {"id":"responsibility","title":"المسؤولية","observable":"ينجز دوره ويحافظ على ممتلكات المدرسة"},
+    {"id":"honesty","title":"الأمانة","observable":"يعيد ما ليس له ويذكر الحقيقة"},
+    {"id":"cooperation","title":"التعاون","observable":"يعمل مع زملائه ويشارك الموارد"},
+    {"id":"school-environment","title":"المحافظة على المدرسة والبيئة","observable":"يحافظ على النظافة والماء والأدوات"},
+    {"id":"belonging","title":"الانتماء","observable":"يعتني بمدرسته ومجتمعه ويشارك في أعمال نافعة"},
+    {"id":"service","title":"خدمة المجتمع","observable":"ينفذ خدمة بسيطة آمنة تناسب عمره"},
+    {"id":"rules","title":"احترام النظام والقانون","observable":"يلتزم بقواعد الصف والطابور والسلامة"},
+    {"id":"difference","title":"قبول الاختلاف","observable":"يحترم اختلاف الرأي والقدرات ولا يقصي زميلًا"}
+  ],
+  "safety":"لا يتضمن الإطار نشاطًا سياسيًا أو حزبيًا أو تعريضًا للأطفال للخطر؛ يركز على السلوك المدرسي والمدني العام.",
+  "integrationRule":"تربط المواطنة بهدف المادة عندما يكون الرابط طبيعيًا، وتُقاس كسلوك مستقل دون تغيير الكفاية الأكاديمية الأصلية."
+}
