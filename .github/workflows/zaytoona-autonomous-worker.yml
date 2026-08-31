@@ -1,8 +1,6 @@
 name: ZAYTOONA Ω autonomous worker
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: '*/5 * * * *'
@@ -27,7 +25,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Regression gate
         working-directory: zaytoona/autonomy
@@ -51,4 +49,5 @@ jobs:
             git push
           fi
 
-# One safe job per wake; durable state carries continuity between wakes.
+# Deliberately no push trigger: state commits must not recursively wake the worker.
+# One bounded safe job per wake; durable state carries continuity between wakes.
