@@ -17,7 +17,7 @@ function validPackage() {
     artifacts: [{ id: 'worksheet', type: 'worksheet', status: 'validated' }],
     evidence: [{ claim: 'curriculum mapping', source: 'curriculum-offline.json', evidence: 'lesson entry', status: 'checked' }],
     assurance: { state: 'READY_FOR_EXECUTION', checks: [] },
-    math_operations: [{ operand_1: 3, operator: '+', operand_2: 4, result: 7 }]
+    math_operations: [{ operand_1: 3, operator: '+', operand_2: 4, result: 7, visual_order: 'operand_1→operator→operand_2→equals→result' }]
   };
 }
 
@@ -28,35 +28,31 @@ test('valid package passes deterministic assurance checks', () => {
 });
 
 test('incorrect arithmetic is rejected', () => {
-  const p = validPackage();
-  p.math_operations[0].result = 8;
+  const p = validPackage(); p.math_operations[0].result = 8;
   const r = validateLesson(p);
-  assert.equal(r.state, 'NO-GO');
-  assert.ok(r.failures.some(x => x.id === 'MATH-001'));
+  assert.equal(r.state, 'NO-GO'); assert.ok(r.failures.some(x => x.id === 'MATH-001'));
 });
 
 test('lesson over 45 minutes is rejected', () => {
-  const p = validPackage();
-  p.timeline.total_minutes = 46;
-  p.timeline.segments[0].minutes = 6;
+  const p = validPackage(); p.timeline.total_minutes = 46; p.timeline.segments[0].minutes = 6;
   const r = validateLesson(p);
-  assert.equal(r.state, 'NO-GO');
-  assert.ok(r.failures.some(x => x.id === 'TIME-002'));
+  assert.equal(r.state, 'NO-GO'); assert.ok(r.failures.some(x => x.id === 'TIME-002'));
 });
 
 test('activity without objective link is rejected', () => {
-  const p = validPackage();
-  p.activities[0].objective_links = [];
+  const p = validPackage(); p.activities[0].objective_links = [];
   const r = validateLesson(p);
-  assert.equal(r.state, 'NO-GO');
-  assert.ok(r.failures.some(x => x.id === 'ALIGN-001'));
+  assert.equal(r.state, 'NO-GO'); assert.ok(r.failures.some(x => x.id === 'ALIGN-001'));
 });
 
 test('unsupported curriculum claim without evidence is rejected', () => {
-  const p = validPackage();
-  p.evidence[0].source = null;
-  p.evidence[0].evidence = null;
+  const p = validPackage(); p.evidence[0].source = null; p.evidence[0].evidence = null;
   const r = validateLesson(p);
-  assert.equal(r.state, 'NO-GO');
-  assert.ok(r.failures.some(x => x.id === 'EVID-001'));
+  assert.equal(r.state, 'NO-GO'); assert.ok(r.failures.some(x => x.id === 'EVID-001'));
+});
+
+test('incorrect visual order is rejected', () => {
+  const p = validPackage(); p.math_operations[0].visual_order = 'operator→operand_1→operand_2→equals→result';
+  const r = validateLesson(p);
+  assert.equal(r.state, 'NO-GO'); assert.ok(r.failures.some(x => x.id === 'MATH-VIS-001'));
 });
