@@ -1,0 +1,50 @@
+name: ZAYTOONA Ω autonomous worker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: zaytoona-autonomous-worker
+  cancel-in-progress: false
+
+jobs:
+  run-one-safe-job:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout durable state
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Regression gate
+        working-directory: zaytoona/autonomy
+        run: npm test
+
+      - name: Execute next autonomous job
+        env:
+          ZAYTOONA_STATE: ./.zaytoona/state.json
+          ZAYTOONA_MISSION: ./zaytoona/autonomy/mission.json
+          ZAYTOONA_OUTPUT: ./artifacts
+        run: node zaytoona/autonomy/worker.mjs
+
+      - name: Persist state and evidence
+        if: always()
+        run: |
+          git config user.name 'zaytoona-autonomy[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .zaytoona zaytoona/autonomy/artifacts 2>/dev/null || true
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore(zaytoona): persist autonomous runtime checkpoint'
+            git push
+          fi
