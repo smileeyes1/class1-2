@@ -43,7 +43,7 @@ jobs:
         run: |
           git config user.name 'zaytoona-autonomy[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .zaytoona zaytoona/autonomy/artifacts 2>/dev/null || true
+          git add .zaytoona artifacts 2>/dev/null || true
           if ! git diff --cached --quiet; then
             git commit -m 'chore(zaytoona): persist autonomous runtime checkpoint'
             git push
