@@ -5,7 +5,7 @@ from docx import Document
 ROOT=Path(__file__).resolve().parents[1];SRC=ROOT/'.audit-source'/'kk';OUT=ROOT/'zaytoona'/'kefayat'
 SUBJECTS={'arabic':'اللغة العربية','math':'الرياضيات','islamic':'التربية الإسلامية','nurturing':'التنشئة/العلوم الحياتية'};EXPECTED={(g,s) for g in range(1,5) for s in SUBJECTS}
 def norm(x):return re.sub(r'\s+',' ',str(x or '').replace('\xa0',' ')).strip()
-def sha(x):return hashlib.sha256(x.encode()).hexdigest()
+def sha(x):return hashlib.sha256(x if isinstance(x,(bytes,bytearray)) else x.encode()).hexdigest()
 def grade(name):
  n=name.replace('أ','ا').replace('إ','ا').replace('ى','ي')
  for w,g in [('الرابع',4),('رابع',4),('الثالث',3),('ثالث',3),('الثاني',2),('ثاني',2),('الأول',1),('الاول',1),('اول',1),('أول',1)]:
@@ -35,21 +35,17 @@ def fields(h,c):
 def xml_text(path):
  try:
   with zipfile.ZipFile(path) as z:
-   root=ET.fromstring(z.read('word/document.xml'))
-   ns={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
-   paras=[]
+   root=ET.fromstring(z.read('word/document.xml'));ns={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'};out=[]
    for p in root.findall('.//w:p',ns):
-    t=''.join(x.text or '' for x in p.findall('.//w:t',ns));t=norm(t)
-    if t:paras.append(t)
-   return paras
+    t=norm(''.join(x.text or '' for x in p.findall('.//w:t',ns)))
+    if t:out.append(t)
+   return out
  except Exception:return []
 def parse_doc(path):
- g=grade(path.name);s=subject(path.name);doc=Document(path);records=[];xt=xml_text(path)
- diag={'file':path.name,'grade':g,'subject':s,'tables':[],'paragraphs':[norm(p.text) for p in doc.paragraphs if norm(p.text)][:20],'xmlText':xt[:250]}
+ g=grade(path.name);s=subject(path.name);doc=Document(path);records=[];xt=xml_text(path);diag={'file':path.name,'grade':g,'subject':s,'tables':[],'paragraphs':[norm(p.text) for p in doc.paragraphs if norm(p.text)][:20],'xmlText':xt[:250]}
  if not g or not s:return [],{**diag,'status':'UNMAPPED'}
  for ti,t in enumerate(doc.tables):
-  rows=[[norm(c.text) for c in row.cells] for row in t.rows];rows=[r for r in rows if any(r)]
-  diag['tables'].append({'table':ti,'rowCount':len(rows),'colCount':max([len(r) for r in rows] or [0]),'preview':rows[:8]})
+  rows=[[norm(c.text) for c in row.cells] for row in t.rows];rows=[r for r in rows if any(r)];diag['tables'].append({'table':ti,'rowCount':len(rows),'colCount':max([len(r) for r in rows] or [0]),'preview':rows[:8]})
   if not rows:continue
   hi=max(range(min(len(rows),8)),key=lambda i:hscore(rows[i]));h=rows[hi]
   if hscore(h)<1:h=[f'column_{i+1}' for i in range(len(h))];hi=-1
@@ -59,18 +55,15 @@ def parse_doc(path):
    if not any(f.get(k) for k in ['competency','standard','indicator','value','domain']):continue
    raw=' | '.join(c);key=sha(f'{s}|{g}|{raw}')
    records.append({'id':'KK-'+key[:16],'grade':g,'subject':s,'subjectLabel':SUBJECTS[s],'domain':f.get('domain',''),'competency':f.get('competency',''),'standard':f.get('standard',''),'indicator':f.get('indicator',''),'value':f.get('value',''),'extra':f.get('extra',[]),'raw':raw,'source':{'repository':'smileeyes1/kk','branch':'main','file':path.name,'table':ti,'row':ri,'sourceSha':sha(path.read_bytes())},'provenance':'USER_PROVIDED_REFERENCE','officialStatus':'UNVERIFIED'})
- # Fallback for DOCX content stored in text boxes/other XML structures with no usable table rows.
  if not records and xt:
   for i,line in enumerate(xt):
    if any(k in line for k in ['الكفاية','كفاية']) and not any(k in line for k in ['الرئيسية','الرئيسة','معايير','معاييرها']):
-    key=sha(f'{s}|{g}|xml|{i}|{line}')
-    records.append({'id':'KK-'+key[:16],'grade':g,'subject':s,'subjectLabel':SUBJECTS[s],'domain':'','competency':line,'standard':'','indicator':'','value':'','extra':[],'raw':line,'source':{'repository':'smileeyes1/kk','branch':'main','file':path.name,'xmlParagraph':i,'sourceSha':sha(path.read_bytes())},'provenance':'USER_PROVIDED_REFERENCE','officialStatus':'UNVERIFIED'})
+    key=sha(f'{s}|{g}|xml|{i}|{line}');records.append({'id':'KK-'+key[:16],'grade':g,'subject':s,'subjectLabel':SUBJECTS[s],'domain':'','competency':line,'standard':'','indicator':'','value':'','extra':[],'raw':line,'source':{'repository':'smileeyes1/kk','branch':'main','file':path.name,'xmlParagraph':i,'sourceSha':sha(path.read_bytes())},'provenance':'USER_PROVIDED_REFERENCE','officialStatus':'UNVERIFIED'})
  return records,{**diag,'status':'OK','records':len(records)}
 def main():
  if not SRC.exists():SRC.parent.mkdir(parents=True,exist_ok=True);subprocess.run(['git','clone','--depth','1','https://github.com/smileeyes1/kk.git',str(SRC)],check=True)
  files=list(SRC.glob('*.docx'));allr=[];man=[]
- for p in files:
-  r,m=parse_doc(p);allr+=r;man.append(m)
+ for p in files:r,m=parse_doc(p);allr+=r;man.append(m)
  cov={(g,s):0 for g,s in EXPECTED}
  for r in allr:cov[(r['grade'],r['subject'])]+=1
  seen={};dups=[]
