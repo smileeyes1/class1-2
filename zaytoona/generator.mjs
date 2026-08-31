@@ -3,6 +3,7 @@ import { validateLesson } from './validator.mjs';
 
 const AR = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
 const toArabic = (n) => String(n).replace(/[0-9]/g, d => AR[Number(d)]);
+const VISUAL_ORDER = 'operand_1→operator→operand_2→equals→result';
 
 export function generateAdditionWithin10() {
   const problems = [[3,2],[4,3],[5,2],[6,4],[1,8]];
@@ -21,7 +22,8 @@ export function generateAdditionWithin10() {
       {id:'teacher-guide',type:'teacher_guide',status:'generated'}, {id:'student-worksheet',type:'worksheet',status:'generated'},
       {id:'activity',type:'activity',status:'generated'}, {id:'assessment',type:'assessment',status:'generated'}],
     evidence: [{ claim:'موضوع الجمع ضمن العدد ١٠ موجود في بيانات المنهج المحلية للمشروع للصف الأول.', source:'curriculum-offline.json', evidence:'الوحدة الثالثة تتضمن: الدرس الثامن: الجمع ضمن العدد (١٠)', status:'checked' }],
-    math_operations: problems.map(([a,b])=>({operand_1:a,operator:'+',operand_2:b,result:a+b})),
+    math_operations: problems.map(([a,b])=>({operand_1:a,operator:'+',operand_2:b,result:a+b,visual_order:VISUAL_ORDER})),
+    visual_counts: problems.map(([a,b])=>({expected_count:a+b,actual_count:a+b})),
     assurance: { state:'NOT_PROVEN', checks:[] }
   };
 }
