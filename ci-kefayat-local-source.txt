@@ -1,0 +1,1 @@
+CI source note: build fresh Kefayat KB from repository DOCX before catalog sync.
