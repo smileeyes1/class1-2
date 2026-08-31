@@ -1,0 +1,100 @@
+{
+  "source": "زيتونة — الجمع ضمن ١٠",
+  "goal": "أن يجمع المتعلم عددين ضمن ١٠ باستخدام تمثيل محسوس ثم مصور ثم رمزي.",
+  "competencies": [
+    "العد",
+    "الجمع",
+    "التحقق"
+  ],
+  "activity": "تمثيل مجموعتين من عناصر محسوسة ثم دمجهما.",
+  "game": "اجمع وتحقق",
+  "worksheet": {
+    "format": "A4",
+    "numerals": "Eastern Arabic"
+  },
+  "scenario": "سياق فلسطيني قريب من بيئة الطفل.",
+  "assessment": [
+    {
+      "id": "q-1",
+      "prompt": "1 + 1 = ؟"
+    },
+    {
+      "id": "q-2",
+      "prompt": "2 + 1 = ؟"
+    },
+    {
+      "id": "q-3",
+      "prompt": "3 + 1 = ؟"
+    },
+    {
+      "id": "q-4",
+      "prompt": "4 + 1 = ؟"
+    },
+    {
+      "id": "q-5",
+      "prompt": "5 + 1 = ؟"
+    }
+  ],
+  "rubric": [
+    "يحتاج دعمًا",
+    "نامٍ",
+    "متقن"
+  ],
+  "evidence": [
+    "حسابات قابلة لإعادة التحقق",
+    "نتائج validator"
+  ],
+  "durationMinutes": 45,
+  "questions": [
+    {
+      "id": "q-1",
+      "a": 1,
+      "b": 1,
+      "answer": 2,
+      "visualCount": 2,
+      "visualOrder": "EXPLICIT"
+    },
+    {
+      "id": "q-2",
+      "a": 2,
+      "b": 1,
+      "answer": 3,
+      "visualCount": 3,
+      "visualOrder": "EXPLICIT"
+    },
+    {
+      "id": "q-3",
+      "a": 3,
+      "b": 1,
+      "answer": 4,
+      "visualCount": 4,
+      "visualOrder": "EXPLICIT"
+    },
+    {
+      "id": "q-4",
+      "a": 4,
+      "b": 1,
+      "answer": 5,
+      "visualCount": 5,
+      "visualOrder": "EXPLICIT"
+    },
+    {
+      "id": "q-5",
+      "a": 5,
+      "b": 1,
+      "answer": 6,
+      "visualCount": 6,
+      "visualOrder": "EXPLICIT"
+    }
+  ],
+  "validation": {
+    "ok": true,
+    "missing": [],
+    "duration": 45,
+    "math": {
+      "ok": true,
+      "failures": [],
+      "checked": 5
+    }
+  }
+}

@@ -2,3 +2,5 @@
 {"type":"PASSED","jobId":"baseline-validate","evidence":{"ok":true,"type":"validate_baseline","evidence":"baseline contract present"},"at":"2026-08-31T05:31:37.584Z"}
 {"type":"CLAIMED","jobId":"math-validator","worker":2317,"fence":"2317:1788154324370:guruj91j91","at":"2026-08-31T05:32:04.371Z"}
 {"type":"PASSED","jobId":"math-validator","evidence":{"ok":true,"type":"validate_math","validation":{"ok":true,"missing":[],"duration":45,"math":{"ok":true,"failures":[],"checked":5}}},"at":"2026-08-31T05:32:04.373Z"}
+{"type":"CLAIMED","jobId":"lesson-package","worker":2095,"fence":"2095:1788154494207:lh0tn108r5p","at":"2026-08-31T05:34:54.208Z"}
+{"type":"PASSED","jobId":"lesson-package","evidence":{"ok":true,"type":"build_lesson_package","artifact":"./artifacts/lesson-addition-within-10.json","validation":{"ok":true,"missing":[],"duration":45,"math":{"ok":true,"failures":[],"checked":5}}},"at":"2026-08-31T05:34:54.210Z"}

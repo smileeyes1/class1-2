@@ -75,14 +75,31 @@
     },
     {
       "id": "lesson-package",
-      "status": "READY",
+      "status": "PASSED",
       "priority": 80,
       "type": "build_lesson_package",
       "dependsOn": [
         "math-validator"
-      ]
+      ],
+      "lease": null,
+      "attempts": 1,
+      "evidence": {
+        "ok": true,
+        "type": "build_lesson_package",
+        "artifact": "./artifacts/lesson-addition-within-10.json",
+        "validation": {
+          "ok": true,
+          "missing": [],
+          "duration": 45,
+          "math": {
+            "ok": true,
+            "failures": [],
+            "checked": 5
+          }
+        }
+      }
     }
   ],
   "events": [],
-  "updatedAt": "2026-08-31T05:32:04.373Z"
+  "updatedAt": "2026-08-31T05:34:54.210Z"
 }
