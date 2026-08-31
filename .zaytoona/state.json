@@ -101,18 +101,18 @@
     }
   ],
   "events": [],
-  "updatedAt": "2026-08-31T12:17:32.700Z",
+  "updatedAt": "2026-08-31T12:21:11.053Z",
   "control": {
     "lastDecision": {
       "kind": "IDLE"
     },
-    "decidedAt": "2026-08-31T12:17:32.700Z",
+    "decidedAt": "2026-08-31T12:21:11.053Z",
     "nextWake": {
       "version": 1,
       "reason": "IDLE",
       "delayMs": 3600000,
-      "nextWakeAt": "2026-08-31T13:17:32.700Z",
-      "computedAt": "2026-08-31T12:17:32.700Z"
+      "nextWakeAt": "2026-08-31T13:21:11.053Z",
+      "computedAt": "2026-08-31T12:21:11.053Z"
     }
   }
 }
