@@ -1,15 +1,22 @@
 name: ZAYTOONA Static Delivery
+
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '.zaytoona/**'
+      - 'artifacts/**'
   workflow_dispatch:
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
 concurrency:
   group: pages
   cancel-in-progress: true
+
 jobs:
   deploy:
     environment:
@@ -18,12 +25,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Sync source-of-truth competencies
+        run: node scripts/sync-kefayat.mjs
+
+      - name: Deterministic release gate
+        run: node scripts/zaytoona-release-gate.mjs
+
+      - name: Syntax gates
+        run: |
+          set -euo pipefail
+          node --check zaytoona/learning-core-v3.js
+          node --check zaytoona/autonomous-assurance-v1.js
+          node --check zaytoona/autonomy/executors.mjs
+          node --check zaytoona/autonomy/policy.mjs
+
+      - name: Autonomous regression suite
+        working-directory: zaytoona/autonomy
+        run: npm test
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: .
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
