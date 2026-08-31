@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "zaytoona://schemas/lesson-package/v1.0",
+  "title": "ZAYTOUNA Educational Lesson Package",
+  "type": "object",
+  "required": ["id", "version", "context", "objective", "success_criterion", "timeline", "activities", "assessment", "artifacts", "evidence", "assurance"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "const": "1.0"},
+    "context": {
+      "type": "object",
+      "required": ["grade", "subject", "topic"],
+      "properties": {
+        "grade": {"type": "integer", "minimum": 1},
+        "subject": {"type": "string"},
+        "topic": {"type": "string"},
+        "curriculum_refs": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "objective": {"type": "string", "minLength": 1},
+    "success_criterion": {"type": "string", "minLength": 1},
+    "timeline": {
+      "type": "object",
+      "required": ["total_minutes", "segments"],
+      "properties": {
+        "total_minutes": {"type": "integer", "minimum": 1, "maximum": 120},
+        "segments": {"type": "array", "items": {"type": "object", "required": ["name", "minutes"], "properties": {"name": {"type": "string"}, "minutes": {"type": "integer", "minimum": 0}}, "additionalProperties": false}}
+      },
+      "additionalProperties": false
+    },
+    "activities": {"type": "array", "items": {"type": "object", "required": ["id", "purpose", "instructions"], "properties": {"id": {"type": "string"}, "purpose": {"type": "string"}, "instructions": {"type": "string"}, "objective_links": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false}},
+    "assessment": {"type": "object", "required": ["items", "answer_key"], "properties": {"items": {"type": "array"}, "answer_key": {"type": "array"}}, "additionalProperties": false},
+    "artifacts": {"type": "array", "items": {"type": "object", "required": ["id", "type", "status"], "properties": {"id": {"type": "string"}, "type": {"type": "string"}, "status": {"enum": ["generated", "validated", "blocked"]}}, "additionalProperties": false}},
+    "evidence": {"type": "array", "items": {"type": "object", "required": ["claim", "status"], "properties": {"claim": {"type": "string"}, "source": {"type": ["string", "null"]}, "evidence": {"type": ["string", "null"]}, "status": {"enum": ["raw", "candidate", "checked", "interpreted", "scholarly_review_required", "not_proven"]}}, "additionalProperties": false}},
+    "assurance": {"type": "object", "required": ["state", "checks"], "properties": {"state": {"enum": ["READY_FOR_EXECUTION", "CONDITIONAL_READY", "NOT_PROVEN", "BLOCKED", "NO-GO"]}, "checks": {"type": "array", "items": {"type": "object", "required": ["id", "result"], "properties": {"id": {"type": "string"}, "result": {"enum": ["PASS", "FAIL", "BLOCKED", "NOT_TESTED"]}, "evidence": {"type": ["string", "null"]}}, "additionalProperties": false}}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}
