@@ -1,0 +1,19 @@
+import { readFile } from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const read=p=>readFile(p,'utf8');
+const index=await read('index.html');
+const command=await read('zaytoona/omega-command.js');
+const annual=await read('zaytoona/annual-learning-engine-v1.js');
+const lesson=await read('zaytoona/smart-lesson-generator-v1.js');
+const assessment=await read('zaytoona/assessment-engine-v1.js');
+const sync=await read('zaytoona/kefayat-sync-v1.js');
+const checks=[];
+function check(name,fn){try{fn();checks.push({name,pass:true})}catch(e){checks.push({name,pass:false,error:e.message});throw e}}
+check('index-load-order',()=>{for(const f of ['omega-state.js','omega-factory.js','omega-command.js','kefayat-sync-v1.js','annual-learning-engine-v1.js','smart-lesson-generator-v1.js','assessment-engine-v1.js'])assert.ok(index.includes(f),`missing:${f}`);assert.ok(index.includes('<main id="app">'))});
+check('kefayat-contract',()=>{assert.match(sync,/getRecords\(\)/);assert.match(command,/catalog\.json/);assert.match(command,/recordCount/)});
+check('annual-contract',()=>{assert.match(annual,/ZaytoonaAnnualLearning/);assert.match(annual,/annualPlan/);assert.match(annual,/mapSubject/);});
+check('lesson-contract',()=>{assert.match(lesson,/ZaytoonaSmartLesson/);assert.match(lesson,/competencyId/);assert.match(lesson,/assessment/)});
+check('assessment-contract',()=>{assert.match(assessment,/ZaytoonaAssessment/);assert.match(assessment,/mastered/);assert.match(assessment,/threshold/)});
+check('orchestration',()=>{for(const id of ['source','structure','annual','lesson','assessment','interaction','persistence','math'])assert.match(command,new RegExp(`id:'${id}'`));assert.match(command,/Promise\.all/)});
+const catalog=JSON.parse(await read('zaytoona/kefayat/catalog.json'));check('real-catalog',()=>{assert.ok(catalog.recordCount>0);assert.equal(catalog.records.length,catalog.recordCount);for(const g of [1,2,3,4])for(const s of ['arabic','math','islamic','nurturing'])assert.ok(catalog.records.some(r=>Number(r.grade)===g&&r.source===s),`missing:${g}:${s}`)});
+console.log(JSON.stringify({status:'PASS',checks},null,2));
