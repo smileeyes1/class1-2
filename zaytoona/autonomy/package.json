@@ -1,0 +1,11 @@
+{
+  "name": "zaytoona-autonomy-runtime",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test *.test.mjs",
+    "start": "node worker.mjs",
+    "worker": "node worker.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

@@ -1,0 +1,25 @@
+name: ZAYTOONA Runtime Check
+
+on:
+  push:
+    paths:
+      - 'zaytoona/runtime/**'
+      - '.github/workflows/zaytoona-runtime-check.yml'
+  pull_request:
+    paths:
+      - 'zaytoona/runtime/**'
+      - '.github/workflows/zaytoona-runtime-check.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: zaytoona/runtime
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm test

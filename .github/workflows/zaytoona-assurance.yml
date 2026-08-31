@@ -1,0 +1,24 @@
+name: ZAYTOUNA Assurance
+
+on:
+  push:
+    branches: [main, zaytoona-omega-v1]
+  pull_request:
+    branches: [main]
+
+jobs:
+  assurance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run deterministic validator tests
+        run: node --test zaytoona/tests/validator.test.mjs
+      - name: Run generation vertical slice tests
+        run: node --test zaytoona/tests/generation-e2e.test.mjs
+      - name: Run executable red-team and repair tests
+        run: node --test zaytoona/tests/adversarial-executable.test.mjs
+      - name: Run autonomous orchestration test
+        run: node --test zaytoona/tests/orchestrator.test.mjs
