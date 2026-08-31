@@ -35,7 +35,6 @@ export function validateLesson(pkg) {
   }
   if (!failures.some(f => f.id === 'EVID-001')) pass('EVID-001');
 
-  // Structured arithmetic checks: operations may be supplied by future generators.
   for (const op of (pkg.math_operations ?? [])) {
     if (op.operator === '+' && Number(op.operand_1) + Number(op.operand_2) !== Number(op.result)) {
       fail('MATH-001', `${op.operand_1} + ${op.operand_2} != ${op.result}`);
@@ -43,6 +42,24 @@ export function validateLesson(pkg) {
     }
   }
   if (!failures.some(f => f.id === 'MATH-001')) pass('MATH-001');
+
+  for (const op of (pkg.math_operations ?? [])) {
+    if (op.visual_order && op.visual_order !== ['operand_1','operator','operand_2','equals','result'].join('→')) {
+      fail('MATH-VIS-001', `unexpected visual order: ${op.visual_order}`);
+      break;
+    }
+  }
+  if (!failures.some(f => f.id === 'MATH-VIS-001')) pass('MATH-VIS-001');
+
+  for (const v of (pkg.visual_counts ?? [])) {
+    const expected = Number(v.expected_count);
+    const actual = Number(v.actual_count);
+    if (!Number.isFinite(expected) || !Number.isFinite(actual) || expected !== actual) {
+      fail('VIS-COUNT-001', `expected=${v.expected_count}, actual=${v.actual_count}`);
+      break;
+    }
+  }
+  if (!failures.some(f => f.id === 'VIS-COUNT-001')) pass('VIS-COUNT-001');
 
   const state = failures.length ? 'NO-GO' : 'READY_FOR_EXECUTION';
   return { state, checks, failures };
