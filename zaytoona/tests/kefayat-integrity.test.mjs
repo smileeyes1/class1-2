@@ -6,7 +6,7 @@ import path from 'node:path';
 const file = path.resolve('zaytoona/kefayat/catalog.json');
 const catalog = JSON.parse(fs.readFileSync(file, 'utf8'));
 const competencySubjects = ['arabic','math','islamic','nurturing'];
-const allSubjects = [...competencySubjects, 'islamic_education'];
+const allSubjects = ['arabic','math','islamic_education','islamic','nurturing'];
 
 test('Kefayat catalog preserves configured source domains', () => {
   assert.equal(catalog.source.repository, 'smileeyes1/kefayat');
