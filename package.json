@@ -1,0 +1,6 @@
+{
+  "name": "zaytoona",
+  "private": true,
+  "type": "module",
+  "scripts": {"test:omega": "node --test zaytoona/tests/omega-browser.test.mjs zaytoona/tests/orchestrator.test.mjs"}
+}
