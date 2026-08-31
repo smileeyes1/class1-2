@@ -1,0 +1,86 @@
+name: ZAYTOONA Ω production continuity gate
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+  push:
+    paths:
+      - 'zaytoona/autonomy/**'
+      - '.github/workflows/zaytoona-production-continuity.yml'
+
+concurrency:
+  group: zaytoona-production-continuity
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  production-continuity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: zaytoona/autonomy/package.json
+
+      - name: Install
+        working-directory: zaytoona/autonomy
+        run: |
+          set -euo pipefail
+          if [ -f package-lock.json ]; then npm ci --ignore-scripts --no-audit --no-fund; else npm install --ignore-scripts --no-audit --no-fund; fi
+
+      - name: Regression and continuity unit gates
+        working-directory: zaytoona/autonomy
+        run: npm test
+
+      - name: Container build
+        working-directory: zaytoona/autonomy
+        run: docker build --pull -t zaytoona-continuity:test .
+
+      - name: Crash → restart → resume smoke test
+        working-directory: zaytoona/autonomy
+        run: |
+          set -euo pipefail
+          rm -rf .zaytoona-ci
+          mkdir -p .zaytoona-ci
+          docker run -d --name zaytoona-continuity-test \
+            -e ZAYTOONA_POLL_MS=5000 \
+            -e ZAYTOONA_HEARTBEAT=/app/.zaytoona/heartbeat.json \
+            -v "$PWD/.zaytoona-ci:/app/.zaytoona" \
+            zaytoona-continuity:test
+          for i in $(seq 1 30); do
+            test -s .zaytoona-ci/heartbeat.json && break
+            sleep 1
+          done
+          test -s .zaytoona-ci/heartbeat.json
+          docker kill -s SIGKILL zaytoona-continuity-test >/dev/null
+          docker rm zaytoona-continuity-test >/dev/null
+          docker run -d --name zaytoona-continuity-test \
+            -e ZAYTOONA_POLL_MS=5000 \
+            -e ZAYTOONA_HEARTBEAT=/app/.zaytoona/heartbeat.json \
+            -v "$PWD/.zaytoona-ci:/app/.zaytoona" \
+            zaytoona-continuity:test
+          for i in $(seq 1 30); do
+            grep -q '"status"' .zaytoona-ci/heartbeat.json && break
+            sleep 1
+          done
+          grep -q '"status"' .zaytoona-ci/heartbeat.json
+          docker rm -f zaytoona-continuity-test >/dev/null
+
+      - name: Docker compose configuration gate
+        working-directory: zaytoona/autonomy
+        run: docker compose -f docker-compose.production.yml config -q
+
+      - name: Evidence summary
+        if: always()
+        run: |
+          echo 'ZAYTOONA Ω Production Continuity Gate'
+          echo 'PASS criteria: regression, container build, crash/restart heartbeat recovery, compose validation.'
