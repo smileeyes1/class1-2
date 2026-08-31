@@ -19,7 +19,7 @@ def subject(name):
  if 'اسلامية' in name or 'إسلامية' in name:return 'islamic'
  if 'تنشئة' in name or 'علوم' in name or 'وطنية' in name:return 'nurturing'
  return None
-def hscore(c):return sum(any(k in x for k in ['كفاية','الكفاية','معيار','المعيار','مؤشر','المؤشر','قيمة','القيم','مجال','المجال','نواتج','نتاج']) for x in c)
+def hscore(c):return sum(any(k in x for k in ['كفاية','الكفاية','معيار','المعيار','مؤشر','المؤشر','قيمة','القيم','مجال','المجال','نواتج','نتاج','يتقن','يطور','يحاول']) for x in c)
 def fields(h,c):
  r={}
  for a,b in zip(h,c):
@@ -30,8 +30,13 @@ def fields(h,c):
   elif 'معيار' in a:r['standard']=b
   elif 'مؤشر' in a or 'نتاج' in a:r['indicator']=b
   elif 'قيمة' in a:r['value']=b
+  elif 'يتقن' in a:r['mastery']=b
+  elif 'يطور' in a:r['developing']=b
+  elif 'يحاول' in a:r['attempting']=b
   else:r.setdefault('extra',[]).append({'header':a,'text':b})
  return r
+def make_record(s,g,path,raw,f,src):
+ key=sha(f'{s}|{g}|{raw}');return {'id':'KK-'+key[:16],'grade':g,'subject':s,'subjectLabel':SUBJECTS[s],'domain':f.get('domain',''),'competency':f.get('competency',''),'standard':f.get('standard',''),'indicator':f.get('indicator',''),'value':f.get('value',''),'mastery':f.get('mastery',''),'developing':f.get('developing',''),'attempting':f.get('attempting',''),'extra':f.get('extra',[]),'raw':raw,'source':src,'provenance':'USER_PROVIDED_REFERENCE','officialStatus':'UNVERIFIED'}
 def xml_text(path):
  try:
   with zipfile.ZipFile(path) as z:
@@ -44,6 +49,7 @@ def xml_text(path):
 def parse_doc(path):
  g=grade(path.name);s=subject(path.name);doc=Document(path);records=[];xt=xml_text(path);diag={'file':path.name,'grade':g,'subject':s,'tables':[],'paragraphs':[norm(p.text) for p in doc.paragraphs if norm(p.text)][:20],'xmlText':xt[:250]}
  if not g or not s:return [],{**diag,'status':'UNMAPPED'}
+ sourceBase={'repository':'smileeyes1/kk','branch':'main','file':path.name,'sourceSha':sha(path.read_bytes())}
  for ti,t in enumerate(doc.tables):
   rows=[[norm(c.text) for c in row.cells] for row in t.rows];rows=[r for r in rows if any(r)];diag['tables'].append({'table':ti,'rowCount':len(rows),'colCount':max([len(r) for r in rows] or [0]),'preview':rows[:8]})
   if not rows:continue
@@ -53,12 +59,18 @@ def parse_doc(path):
    if not any(c) or len(c)!=len(h):continue
    f=fields(h,c)
    if not any(f.get(k) for k in ['competency','standard','indicator','value','domain']):continue
-   raw=' | '.join(c);key=sha(f'{s}|{g}|{raw}')
-   records.append({'id':'KK-'+key[:16],'grade':g,'subject':s,'subjectLabel':SUBJECTS[s],'domain':f.get('domain',''),'competency':f.get('competency',''),'standard':f.get('standard',''),'indicator':f.get('indicator',''),'value':f.get('value',''),'extra':f.get('extra',[]),'raw':raw,'source':{'repository':'smileeyes1/kk','branch':'main','file':path.name,'table':ti,'row':ri,'sourceSha':sha(path.read_bytes())},'provenance':'USER_PROVIDED_REFERENCE','officialStatus':'UNVERIFIED'})
+   records.append(make_record(s,g,path,' | '.join(c),f,{**sourceBase,'table':ti,'row':ri}))
  if not records and xt:
-  for i,line in enumerate(xt):
-   if any(k in line for k in ['الكفاية','كفاية']) and not any(k in line for k in ['الرئيسية','الرئيسة','معايير','معاييرها']):
-    key=sha(f'{s}|{g}|xml|{i}|{line}');records.append({'id':'KK-'+key[:16],'grade':g,'subject':s,'subjectLabel':SUBJECTS[s],'domain':'','competency':line,'standard':'','indicator':'','value':'','extra':[],'raw':line,'source':{'repository':'smileeyes1/kk','branch':'main','file':path.name,'xmlParagraph':i,'sourceSha':sha(path.read_bytes())},'provenance':'USER_PROVIDED_REFERENCE','officialStatus':'UNVERIFIED'})
+  heads=['الكفاية الرئيسة','الكفايات الفرعية','المعايير','مؤشرات الأداء','يتقن','يطور','يحاول']
+  try:start=next(i for i,x in enumerate(xt) if x==heads[0] and xt[i:i+7]==heads)
+  except StopIteration:start=None
+  if start is not None:
+   data=xt[start+7:]
+   for i in range(0,len(data)-6,7):
+    chunk=data[i:i+7]
+    if len(chunk)<7 or chunk[0]=='تمّ بحمد الله':continue
+    f={'competency':chunk[0],'standard':chunk[2],'indicator':chunk[3],'mastery':chunk[4],'developing':chunk[5],'attempting':chunk[6]}
+    records.append(make_record(s,g,path,' | '.join(chunk),f,{**sourceBase,'xmlParagraphStart':start+7+i,'xmlMode':'seven-column-fallback'}))
  return records,{**diag,'status':'OK','records':len(records)}
 def main():
  if not SRC.exists():SRC.parent.mkdir(parents=True,exist_ok=True);subprocess.run(['git','clone','--depth','1','https://github.com/smileeyes1/kk.git',str(SRC)],check=True)
@@ -68,20 +80,20 @@ def main():
  for r in allr:cov[(r['grade'],r['subject'])]+=1
  seen={};dups=[]
  for r in allr:
-  k=(r['grade'],r['subject'],r['domain'],r['competency'],r['standard'],r['indicator'],r['value'])
+  k=(r['grade'],r['subject'],r['domain'],r['competency'],r['standard'],r['indicator'])
   if k in seen:dups.append({'first':seen[k],'duplicate':r['id'],'key':k})
   else:seen[k]=r['id']
  gaps=[{'grade':g,'subject':s,'count':cov[(g,s)]} for g,s in sorted(EXPECTED) if cov[(g,s)]==0]
  variants={};conf=[]
  for r in allr:
-  k=(r['grade'],r['subject'],r['competency'])
-  if r['competency']:variants.setdefault(k,set()).add((r['standard'],r['indicator'],r['value']))
+  k=(r['grade'],r['subject'],r['domain'],r['competency'],r['standard'],r['indicator'])
+  variants.setdefault(k,set()).add((r['value'],r['mastery'],r['developing'],r['attempting']))
  for k,v in variants.items():
   if len(v)>1:conf.append({'key':k,'variants':list(v)[:20]})
  unique={}
- for r in allr:unique.setdefault((r['grade'],r['subject'],r['domain'],r['competency'],r['standard'],r['indicator'],r['value']),r)
+ for r in allr:unique.setdefault((r['grade'],r['subject'],r['domain'],r['competency'],r['standard'],r['indicator'],r['value'],r['mastery'],r['developing'],r['attempting']),r)
  records=list(unique.values());OUT.mkdir(parents=True,exist_ok=True)
- cat={'schemaVersion':5,'audit':'Ω KEFAYAT MASTER AUDIT & COMPLETION','generatedFrom':{'repository':'smileeyes1/kk','branch':'main'},'officialityPolicy':'USER-PROVIDED REFERENCE; NOT OFFICIAL-VERIFIED','recordCount':len(records),'inputRecordCount':len(allr),'deduplicated':len(allr)-len(records),'coverage':{'grades':[1,2,3,4],'subjects':list(SUBJECTS),'matrix':{f'{g}|{s}':cov[(g,s)] for g,s in sorted(EXPECTED)}},'records':records}
+ cat={'schemaVersion':6,'audit':'Ω KEFAYAT MASTER AUDIT & COMPLETION','generatedFrom':{'repository':'smileeyes1/kk','branch':'main'},'officialityPolicy':'USER-PROVIDED REFERENCE; NOT OFFICIAL-VERIFIED','recordCount':len(records),'inputRecordCount':len(allr),'deduplicated':len(allr)-len(records),'coverage':{'grades':[1,2,3,4],'subjects':list(SUBJECTS),'matrix':{f'{g}|{s}':cov[(g,s)] for g,s in sorted(EXPECTED)}},'records':records}
  (OUT/'master-audit.json').write_text(json.dumps({'status':'NO-GO' if gaps else 'PASS','files':man,'coverage':cat['coverage'],'duplicates':dups,'conflicts':conf,'gaps':gaps,'inputRecordCount':len(allr),'canonicalRecordCount':len(records)},ensure_ascii=False,indent=2)+'\n',encoding='utf8')
  (OUT/'catalog.json').write_text(json.dumps(cat,ensure_ascii=False,indent=2)+'\n',encoding='utf8');(OUT/'catalog.min.json').write_text(json.dumps(cat,ensure_ascii=False,separators=(',',':'))+'\n',encoding='utf8')
  out={'status':'PASS' if not gaps else 'NO-GO','files':len(files),'records':len(records),'duplicates':len(dups),'conflicts':len(conf),'gaps':gaps,'coverage':cat['coverage']['matrix']};print(json.dumps(out,ensure_ascii=False,indent=2));
