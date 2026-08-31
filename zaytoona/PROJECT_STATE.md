@@ -2,49 +2,47 @@
 
 **Version:** v1.0 vertical-slice execution baseline
 **Branch:** zaytoona-omega-v1
-**PR:** #1 (draft)
+**PR:** #1 (draft, open)
 **Primary test case:** الصف الأول → الرياضيات → الجمع ضمن ١٠
-**Current gate:** G1 Generation + deterministic assurance slice — local execution PASS; system-wide readiness remains NO-GO
+**Current gate:** G3 preparation — generation, deterministic validation, executable red-team and orchestration are implemented; external CI and real rendering/pilot remain unproven.
 
 ## Completed
-- Architecture baseline and canonical lesson schema established.
-- Deterministic lesson generator added for the first test case.
-- Canonical Grade 1 addition-within-10 fixture added.
-- Deterministic validator integrated with generator.
-- Structured math operations formalized in the schema.
-- Executable validator tests retained and expanded with generation E2E tests.
-- CI workflow updated to run validator and generation tests.
-- Assurance report added with explicit evidence and limitations.
-- Branch isolation preserved; `main` was not modified.
+- Architecture baseline and canonical lesson schema.
+- Deterministic Grade 1 addition-within-10 generator and fixture.
+- Deterministic validator for structure, time, alignment, evidence, arithmetic, explicit math visual order, and visual counts.
+- Schema formalization for structured math operations and visual counts.
+- Executable generation E2E tests.
+- Executable adversarial tests for arithmetic, visual order, visual count, alignment, time and evidence.
+- Autonomous vertical-slice orchestrator with an executable red-team gate.
+- CI workflow covering validator, generation, red-team/repair, and orchestrator tests.
+- Assurance report and durable project checkpoint.
+- All changes remain isolated from `main`.
 
-## Local verification
-- Generator → validator: PASS.
-- Existing validator suite: PASS.
-- Generation E2E: PASS.
-- Answer-key drift test: PASS.
-- Combined local reconstructed test run: 7/7 PASS, 0 FAIL.
-
-## External verification
-- Latest branch commit exists: `15779dea46485049630ebc7d5e61cb98deb6f962` at the time of branch inspection.
-- No GitHub Actions workflow run was available through the connected API for that commit; CI therefore remains NOT VERIFIED.
+## Verification
+- Local deterministic baseline/generation tests: PASS, 7/7.
+- A local adversarial run exposed a real weakness: optional visual-order checks did not reject a wrong order. The validator was hardened to require the explicit contract whenever structured math operations exist.
+- Adversarial tests were then strengthened to assert the exact failure class.
+- Current implementation was committed after the hardening.
+- GitHub Actions: NOT VERIFIED; the connected API currently reports no workflow run for the latest branch commit.
 
 ## Open
-- Verify CI execution when a workflow run becomes available.
-- Add dedicated JSON Schema runtime validation.
-- Implement explicit mathematical visual-order model and assertions.
-- Implement repair + regression orchestration.
-- Make adversarial fixtures executable rather than declarative only.
-- Implement durable runtime checkpoint/state behavior.
-- Implement minimum-intervention teacher flow.
-- Implement student learning flow.
-- Run G1–G3 end-to-end before any readiness claim.
-- Conduct real classroom pilot for G4.
+- Obtain/verify CI execution.
+- Add a real JSON Schema validator runtime and schema-conformance tests.
+- Add actual render-level visual assertions; structured checks alone do not prove pixels/layout.
+- Build deterministic repair planning with cause localization and regression manifests.
+- Add durable runtime checkpoint implementation rather than documentation only.
+- Implement minimum-intervention teacher UI.
+- Implement student learning and assessment flow.
+- Add evidence-aware curriculum resolver over authoritative source artifacts.
+- Run G1–G3 end-to-end in the real repository environment.
+- Conduct G4 classroom pilot.
 
-## Non-negotiable release conditions
-- No critical math/visual/evidence/traceability failure.
-- No release after failed validation without successful revalidation and regression.
-- Tool failure preserves state and triggers an alternate route.
-- Pilot success is not generalized to the whole system.
+## Release rules
+- Any critical math, visual, evidence or traceability failure = NO-GO.
+- No repair acceptance without revalidation and regression.
+- No claim of CI success without a recorded CI run.
+- No claim of visual correctness from data checks alone.
+- No claim of system-wide educational efficacy from a single pilot.
 
 ## Next autonomous action
-Build the visual-order assertion layer and executable adversarial suite, then implement repair/retest/regression for the same vertical slice. Keep all changes on the isolated branch and update this state after each material gate.
+Continue hardening the same vertical slice: schema-conformance test → repair/regression engine → render-level assertions → teacher minimum-intervention flow. Preserve `main`, keep checkpoints current, and use PASS/FAIL/BLOCKED/NOT TESTED truth states.
