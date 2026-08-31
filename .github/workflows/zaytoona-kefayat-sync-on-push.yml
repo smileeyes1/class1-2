@@ -17,14 +17,13 @@ jobs:
         run: node scripts/sync-kefayat.mjs
       - name: Validate catalog
         run: node -e "const fs=require('fs');const x=JSON.parse(fs.readFileSync('zaytoona/kefayat/catalog.json','utf8'));if(!x.recordCount||x.recordCount!==x.records.length)process.exit(1);if(!x.records.every(r=>r.id&&r.source&&r.raw))process.exit(1);console.log('PASS',x.recordCount)"
-      - name: Persist catalog
+      - name: Persist catalog safely
         run: |
           git config user.name 'zaytoona-autonomy[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add zaytoona/kefayat/catalog.json zaytoona/kefayat/catalog.min.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'chore(zaytoona): refresh Kefayat competency catalog'
-            git push
-          else
-            echo 'Catalog unchanged'
-          fi
+          if git diff --cached --quiet; then echo 'Catalog unchanged'; exit 0; fi
+          git commit -m 'chore(zaytoona): refresh Kefayat competency catalog'
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main
