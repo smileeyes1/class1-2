@@ -3,7 +3,7 @@ name: ZAYTOONA Ω autonomous runtime
 on:
   workflow_dispatch:
   schedule:
-    # GitHub Actions' shortest supported scheduled interval is 5 minutes.
+    # GitHub Actions minimum supported scheduled interval: 5 minutes.
     - cron: '*/5 * * * *'
   push:
     paths:
@@ -29,7 +29,27 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: zaytoona/autonomy/package.json
+
+      - name: Install dependencies deterministically where a lockfile exists
+        working-directory: zaytoona/autonomy
+        run: |
+          set -euo pipefail
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts --no-audit --no-fund
+          else
+            npm install --ignore-scripts --no-audit --no-fund
+          fi
+
+      - name: Syntax gate
+        working-directory: zaytoona/autonomy
+        run: |
+          set -euo pipefail
+          for f in worker.mjs runtime.mjs supervisor.mjs planner.mjs policy.mjs provider.mjs llm-adapter.mjs resilience.mjs state-machine.mjs store.mjs executors.mjs; do
+            node --check "$f"
+          done
 
       - name: Regression
         working-directory: zaytoona/autonomy
@@ -41,6 +61,7 @@ jobs:
 
       - name: Persist durable state and validated artifacts
         run: |
+          set -euo pipefail
           git config user.name 'zaytoona-autonomy[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .zaytoona zaytoona/autonomy/artifacts 2>/dev/null || true
