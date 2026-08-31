@@ -10,9 +10,20 @@ const missionPath = process.env.ZAYTOONA_MISSION || './mission.json';
 async function bootstrap() {
   await mkdir('./.zaytoona',{recursive:true});
   const state = await loadState(statePath);
-  if (!state.jobs.length) {
-    const mission = await loadState(missionPath).catch(() => null);
-    if (mission?.jobs?.length) await saveState(statePath, {version:1,missions:[mission],jobs:mission.jobs,events:[]});
+  const mission = await loadState(missionPath).catch(() => null);
+  if (!mission?.jobs?.length) return;
+
+  const active = state.missions?.at(-1);
+  const changed = active?.missionId !== mission.missionId || active?.version !== mission.version;
+  if (!state.jobs.length || changed) {
+    const oldEvents = state.events || [];
+    const resetJobs = mission.jobs.map(j => ({...j,attempts:0,lease:null,error:null,evidence:null}));
+    await saveState(statePath, {
+      version: mission.version,
+      missions:[...(state.missions||[]), mission],
+      jobs:resetJobs,
+      events:[...oldEvents,{type:'MISSION_RECONCILED',missionId:mission.missionId,version:mission.version,at:new Date().toISOString()}]
+    });
   }
 }
 
