@@ -1,5 +1,13 @@
-const HUMAN_ONLY = new Set(['delete_data','change_security_policy','publish_sensitive','alter_owner_gate','publish_production','change_policy','change_permissions']);
-const AUTONOMOUS = new Set(['validate_baseline','validate_math','build_lesson_package','verify','repair']);
+const HUMAN_ONLY = new Set([
+  'delete_data','change_security_policy','publish_sensitive','alter_owner_gate',
+  'publish_production','change_policy','change_permissions'
+]);
+
+const AUTONOMOUS = new Set([
+  'validate_baseline','validate_math','build_lesson_package',
+  'validate_kefayat_catalog','build_annual_plan','validate_learning_core',
+  'run_adversarial_gate','prepare_release_evidence','verify','repair'
+]);
 
 export function authorize(job) {
   if (!job?.id || !job?.type) return {ok:false,code:'INVALID_JOB'};
@@ -8,7 +16,7 @@ export function authorize(job) {
   return {ok:true,code:'AUTONOMOUS_ALLOWED'};
 }
 
-export function retryDecision(job, maxAttempts=3) {
-  if ((job?.attempts||0) >= maxAttempts) return {action:'BLOCK',reason:'RETRY_LIMIT'};
+export function retryDecision(job,maxAttempts=3) {
+  if ((job?.attempts||0)>=maxAttempts) return {action:'BLOCK',reason:'RETRY_LIMIT'};
   return {action:'RETRY',reason:'BOUNDED_RETRY'};
 }
