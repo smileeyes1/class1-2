@@ -3,15 +3,14 @@ on:
   push:
     branches: [main]
     paths:
-      - 'scripts/sync-kefayat.mjs'
-      - '.github/workflows/kefayat-sync.yml'
-      - 'scripts/kefayat-regression.mjs'
+      - 'scripts/**'
       - 'zaytoona/**'
+      - '.github/workflows/kefayat-sync.yml'
   workflow_dispatch:
 permissions:
   contents: write
 jobs:
-  sync-and-test:
+  production-gate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,10 +19,14 @@ jobs:
           node-version: 20
       - name: Generate real catalog
         run: node scripts/sync-kefayat.mjs
-      - name: Hard validation and coverage
+      - name: Catalog integrity and coverage
         run: node scripts/kefayat-regression.mjs
+      - name: End-to-end learning integration
+        run: node scripts/zaytoona-e2e.mjs
       - name: Full regression
         run: npm run test:all
+      - name: Release Gate
+        run: npm run test:release
       - name: Commit generated catalog
         run: |
           git config user.name 'github-actions[bot]'
@@ -32,13 +35,3 @@ jobs:
           if git diff --cached --quiet; then echo 'CATALOG_UNCHANGED'; exit 0; fi
           git commit -m 'chore(zaytoona): sync real Kefayat catalog'
           git push
-  release-gate:
-    needs: sync-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Release Gate
-        run: npm run test:release
