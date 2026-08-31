@@ -1,0 +1,56 @@
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+
+const SOURCES = [
+  ['arabic','GEM_KB_ARABIC_GRADES_1-4.md'],
+  ['math','GEM_KB_MATH_GRADES_1-4.md'],
+  ['islamic-education','GEM_KB_ISLAMIC_EDUCATION_GRADES_1-4.md'],
+  ['islamic','GEM_KB_ISLAMIC_GRADES_1-4.md'],
+  ['nurturing','GEM_KB_NURTURING_GRADES_1-4.md'],
+];
+const BASE='https://raw.githubusercontent.com/smileeyes1/kefayat/main/';
+const out='zaytoona/kefayat';
+
+function norm(s=''){return s.replace(/\r/g,'').trim();}
+function idFor(source,row){return `KF-${createHash('sha256').update(`${source}\n${row}`).digest('hex').slice(0,12)}`;}
+function gradeFrom(text){
+  const m=text.match(/##\s*الصف\s*([١٢٣٤1-4])/);
+  if(!m)return null;
+  return Number(String(m[1]).replace(/[١٢٣٤]/g,x=>({١:'1',٢:'2',٣:'3',٤:'4'}[x])));
+}
+function parse(source,text){
+  const lines=text.split('\n'); const records=[]; let grade=null; let header=null;
+  for(const raw of lines){
+    const line=norm(raw);
+    if(line.startsWith('## ')){grade=gradeFrom(line); header=null; continue;}
+    if(!line.includes('|') || line.startsWith('SOURCE:') || line.startsWith('EXTRACTION') || line.startsWith('[')) continue;
+    const cells=line.split('|').map(norm);
+    if(cells.length<4) continue;
+    if(cells.some(x=>/المجال المعرفي|competency|كفايات الممارسة|الكفايات الفرعية|نتائج التعلم|نتاجات التعلم/.test(x))){header=cells; continue;}
+    if(!header || cells.length!==header.length) continue;
+    const obj={id:idFor(source,line),source,grade,raw:line};
+    for(let i=0;i<header.length;i++){const key=header[i]||`column_${i+1}`;obj[key]=cells[i];}
+    obj.competency=obj['الكفايات الفرعية المستقلة بنيوياً']||obj['competency']||'';
+    obj.standard=obj['المعايير التفصيلية']||obj['standard']||'';
+    obj.learningOutcome=obj['نتاجات التعلم']||obj['learningOutcome']||'';
+    obj.mastery=obj['يتقن']||obj['mastery']||'';
+    obj.developing=obj['يطور']||obj['developing']||'';
+    obj.attempting=obj['يحاول']||obj['attempting']||'';
+    records.push(obj);
+  }
+  return records;
+}
+
+const records=[]; const sourceMeta=[];
+for(const [key,file] of SOURCES){
+  const url=BASE+encodeURIComponent(file).replace(/%2F/g,'/');
+  const res=await fetch(url); if(!res.ok) throw new Error(`${file}: HTTP ${res.status}`);
+  const text=await res.text(); const rows=parse(key,text);
+  records.push(...rows); sourceMeta.push({key,file,url,sha256:createHash('sha256').update(text).digest('hex'),records:rows.length});
+}
+const unique=new Map(records.map(r=>[r.id,r]));
+const catalog={schemaVersion:1,generatedAt:new Date().toISOString(),source:{repository:'smileeyes1/kefayat',branch:'main',baseUrl:BASE},recordCount:unique.size,sources:sourceMeta,records:[...unique.values()]};
+await mkdir(out,{recursive:true});
+await writeFile(`${out}/catalog.json`,JSON.stringify(catalog,null,2)+'\n','utf8');
+await writeFile(`${out}/catalog.min.json`,JSON.stringify(catalog)+'\n','utf8');
+console.log(JSON.stringify({status:'PASS',recordCount:catalog.recordCount,sources:sourceMeta.map(x=>({file:x.file,records:x.records}))}));
