@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "missions": [
     {
       "version": 1,
@@ -32,16 +32,105 @@
           ]
         }
       ]
+    },
+    {
+      "version": 2,
+      "missionId": "zaytoona-core-002",
+      "goal": "Build and continuously improve a trustworthy competency-driven educational production system for Palestinian Arabic early grades.",
+      "ownerGate": "FINAL_HUMAN_ONLY",
+      "policy": {
+        "failClosed": true,
+        "maxAttempts": 3,
+        "humanOnly": [
+          "publish_production",
+          "change_policy",
+          "change_permissions",
+          "alter_owner_gate",
+          "delete_data"
+        ]
+      },
+      "jobs": [
+        {
+          "id": "baseline-validate",
+          "status": "READY",
+          "priority": 120,
+          "type": "validate_baseline"
+        },
+        {
+          "id": "kefayat-catalog-gate",
+          "status": "READY",
+          "priority": 115,
+          "type": "validate_kefayat_catalog",
+          "dependsOn": [
+            "baseline-validate"
+          ]
+        },
+        {
+          "id": "annual-plan-build",
+          "status": "READY",
+          "priority": 110,
+          "type": "build_annual_plan",
+          "dependsOn": [
+            "kefayat-catalog-gate"
+          ]
+        },
+        {
+          "id": "learning-core-gate",
+          "status": "READY",
+          "priority": 105,
+          "type": "validate_learning_core",
+          "dependsOn": [
+            "annual-plan-build"
+          ]
+        },
+        {
+          "id": "math-validator",
+          "status": "READY",
+          "priority": 100,
+          "type": "validate_math",
+          "dependsOn": [
+            "learning-core-gate"
+          ]
+        },
+        {
+          "id": "lesson-package",
+          "status": "READY",
+          "priority": 90,
+          "type": "build_lesson_package",
+          "dependsOn": [
+            "math-validator"
+          ]
+        },
+        {
+          "id": "adversarial-gate",
+          "status": "READY",
+          "priority": 85,
+          "type": "run_adversarial_gate",
+          "dependsOn": [
+            "lesson-package"
+          ]
+        },
+        {
+          "id": "release-evidence",
+          "status": "READY",
+          "priority": 80,
+          "type": "prepare_release_evidence",
+          "dependsOn": [
+            "adversarial-gate"
+          ]
+        }
+      ]
     }
   ],
   "jobs": [
     {
       "id": "baseline-validate",
       "status": "PASSED",
-      "priority": 100,
+      "priority": 120,
       "type": "validate_baseline",
-      "lease": null,
       "attempts": 1,
+      "lease": null,
+      "error": null,
       "evidence": {
         "ok": true,
         "type": "validate_baseline",
@@ -49,70 +138,120 @@
       }
     },
     {
-      "id": "math-validator",
-      "status": "PASSED",
-      "priority": 90,
-      "type": "validate_math",
+      "id": "kefayat-catalog-gate",
+      "status": "READY",
+      "priority": 115,
+      "type": "validate_kefayat_catalog",
       "dependsOn": [
         "baseline-validate"
       ],
+      "attempts": 0,
       "lease": null,
-      "attempts": 1,
-      "evidence": {
-        "ok": true,
-        "type": "validate_math",
-        "validation": {
-          "ok": true,
-          "missing": [],
-          "duration": 45,
-          "math": {
-            "ok": true,
-            "failures": [],
-            "checked": 5
-          }
-        }
-      }
+      "error": null,
+      "evidence": null
+    },
+    {
+      "id": "annual-plan-build",
+      "status": "READY",
+      "priority": 110,
+      "type": "build_annual_plan",
+      "dependsOn": [
+        "kefayat-catalog-gate"
+      ],
+      "attempts": 0,
+      "lease": null,
+      "error": null,
+      "evidence": null
+    },
+    {
+      "id": "learning-core-gate",
+      "status": "READY",
+      "priority": 105,
+      "type": "validate_learning_core",
+      "dependsOn": [
+        "annual-plan-build"
+      ],
+      "attempts": 0,
+      "lease": null,
+      "error": null,
+      "evidence": null
+    },
+    {
+      "id": "math-validator",
+      "status": "READY",
+      "priority": 100,
+      "type": "validate_math",
+      "dependsOn": [
+        "learning-core-gate"
+      ],
+      "attempts": 0,
+      "lease": null,
+      "error": null,
+      "evidence": null
     },
     {
       "id": "lesson-package",
-      "status": "PASSED",
-      "priority": 80,
+      "status": "READY",
+      "priority": 90,
       "type": "build_lesson_package",
       "dependsOn": [
         "math-validator"
       ],
+      "attempts": 0,
       "lease": null,
-      "attempts": 1,
-      "evidence": {
-        "ok": true,
-        "type": "build_lesson_package",
-        "artifact": "./artifacts/lesson-addition-within-10.json",
-        "validation": {
-          "ok": true,
-          "missing": [],
-          "duration": 45,
-          "math": {
-            "ok": true,
-            "failures": [],
-            "checked": 5
-          }
-        }
-      }
+      "error": null,
+      "evidence": null
+    },
+    {
+      "id": "adversarial-gate",
+      "status": "READY",
+      "priority": 85,
+      "type": "run_adversarial_gate",
+      "dependsOn": [
+        "lesson-package"
+      ],
+      "attempts": 0,
+      "lease": null,
+      "error": null,
+      "evidence": null
+    },
+    {
+      "id": "release-evidence",
+      "status": "READY",
+      "priority": 80,
+      "type": "prepare_release_evidence",
+      "dependsOn": [
+        "adversarial-gate"
+      ],
+      "attempts": 0,
+      "lease": null,
+      "error": null,
+      "evidence": null
     }
   ],
-  "events": [],
-  "updatedAt": "2026-08-31T12:24:43.660Z",
+  "events": [
+    {
+      "type": "MISSION_RECONCILED",
+      "missionId": "zaytoona-core-002",
+      "version": 2,
+      "at": "2026-08-31T18:15:26.387Z"
+    }
+  ],
+  "updatedAt": "2026-08-31T18:15:26.390Z",
   "control": {
     "lastDecision": {
-      "kind": "IDLE"
+      "kind": "EXECUTE",
+      "jobId": "baseline-validate",
+      "priority": 120,
+      "type": "validate_baseline"
     },
-    "decidedAt": "2026-08-31T12:24:43.659Z",
+    "decidedAt": "2026-08-31T18:15:26.388Z",
     "nextWake": {
       "version": 1,
-      "reason": "IDLE",
-      "delayMs": 3600000,
-      "nextWakeAt": "2026-08-31T13:24:43.659Z",
-      "computedAt": "2026-08-31T12:24:43.659Z"
+      "reason": "WORK_READY",
+      "delayMs": 300000,
+      "nextWakeAt": "2026-08-31T18:20:26.388Z",
+      "computedAt": "2026-08-31T18:15:26.388Z"
     }
   }
 }
