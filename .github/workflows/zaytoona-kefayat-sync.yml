@@ -23,6 +23,8 @@ jobs:
           node-version: 20
       - name: Generate Kefayat catalog
         run: node zaytoona/kefayat/sync.mjs zaytoona/kefayat
+      - name: Validate generated catalog
+        run: node --test zaytoona/tests/kefayat-integrity.test.mjs
       - name: Commit catalog when changed
         run: |
           git config user.name 'github-actions[bot]'
