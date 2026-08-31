@@ -24,3 +24,5 @@ jobs:
         run: node --test zaytoona/tests/orchestrator.test.mjs
       - name: Run generic competency engine test
         run: node --test zaytoona/competency-engine.test.mjs
+      - name: Run annual learning engine regression tests
+        run: node --test zaytoona/tests/annual-learning-engine.test.mjs
