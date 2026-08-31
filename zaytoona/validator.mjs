@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 
+const REQUIRED_VISUAL_ORDER = 'operand_1→operator→operand_2→equals→result';
+
 export function validateLesson(pkg) {
   const failures = [];
   const checks = [];
@@ -43,13 +45,17 @@ export function validateLesson(pkg) {
   }
   if (!failures.some(f => f.id === 'MATH-001')) pass('MATH-001');
 
-  for (const op of (pkg.math_operations ?? [])) {
-    if (op.visual_order && op.visual_order !== ['operand_1','operator','operand_2','equals','result'].join('→')) {
-      fail('MATH-VIS-001', `unexpected visual order: ${op.visual_order}`);
-      break;
+  if ((pkg.math_operations ?? []).length === 0) {
+    pass('MATH-VIS-001');
+  } else {
+    for (const op of pkg.math_operations) {
+      if (op.visual_order !== REQUIRED_VISUAL_ORDER) {
+        fail('MATH-VIS-001', `required=${REQUIRED_VISUAL_ORDER}, observed=${op.visual_order ?? 'missing'}`);
+        break;
+      }
     }
+    if (!failures.some(f => f.id === 'MATH-VIS-001')) pass('MATH-VIS-001');
   }
-  if (!failures.some(f => f.id === 'MATH-VIS-001')) pass('MATH-VIS-001');
 
   for (const v of (pkg.visual_counts ?? [])) {
     const expected = Number(v.expected_count);
