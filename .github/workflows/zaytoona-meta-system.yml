@@ -1,0 +1,34 @@
+name: ZAYTOONA Ω Modular Meta-System
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'zaytoona/meta-system/**'
+      - 'zaytoona/meta-system.test.mjs'
+      - 'zaytoona/kefayat/catalog.json'
+      - 'scripts/sync-kefayat.mjs'
+      - 'scripts/kefayat-regression.mjs'
+      - 'scripts/zaytoona-release-gate.mjs'
+      - 'package.json'
+permissions:
+  contents: read
+concurrency:
+  group: zaytoona-meta-system
+  cancel-in-progress: false
+jobs:
+  meta-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '24'}
+      - name: Meta-system tests
+        run: npm run test:meta
+      - name: Kefayat regression
+        run: npm run test:kefayat
+      - name: Release gate
+        run: npm run test:release
+      - name: Final evidence
+        run: echo 'OMEGA_MODULAR_META_SYSTEM=PASS' && echo 'KEFAYAT=PASS' && echo 'RELEASE_GATE=PASS'
