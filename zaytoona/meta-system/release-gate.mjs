@@ -1,0 +1,2 @@
+import { validateCatalog, validateModule } from './validator.mjs';
+export function releaseGate({catalog,modules=[],state}={}){const checks=[validateCatalog(catalog),...modules.map(validateModule),{ok:Array.isArray(state?.jobs)&&state.jobs.length>0&&state.jobs.every(j=>j.status==='PASSED'),failures:state?.jobs?.filter(j=>j.status!=='PASSED').map(j=>j.id)||['NO_JOBS']}];const failures=checks.flatMap(x=>x.failures||[]);return {status:failures.length?'NO-GO':'GO',ok:failures.length===0,failures,checks:checks.length};}
