@@ -1,0 +1,22 @@
+name: ZAYTOONA Ω autonomy heartbeat
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Runtime health contract
+        run: |
+          test -f zaytoona/AUTONOMOUS_CONTROL_PLANE.md
+          test -f zaytoona/autonomy/README.md
+          echo 'ZAYTOONA autonomy control-plane artifacts present.'
