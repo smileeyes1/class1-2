@@ -1,3 +1,4 @@
+# CI trigger after release-gate schema update
 #!/usr/bin/env python3
 import json,re,hashlib,subprocess,sys,zipfile,xml.etree.ElementTree as ET
 from pathlib import Path
