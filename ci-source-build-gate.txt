@@ -1,0 +1,1 @@
+The deployment pipeline must build the source-of-truth Kefayat knowledge base from its DOCX sources before syncing Zaytoona.
