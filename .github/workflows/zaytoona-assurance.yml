@@ -20,3 +20,5 @@ jobs:
         run: node --test zaytoona/tests/generation-e2e.test.mjs
       - name: Run executable red-team and repair tests
         run: node --test zaytoona/tests/adversarial-executable.test.mjs
+      - name: Run autonomous orchestration test
+        run: node --test zaytoona/tests/orchestrator.test.mjs
