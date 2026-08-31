@@ -1,4 +1,4 @@
-name: ZAYTOUNA Assurance
+name: ZAYTOONA Assurance
 
 on:
   push:
@@ -22,3 +22,5 @@ jobs:
         run: node --test zaytoona/tests/adversarial-executable.test.mjs
       - name: Run autonomous orchestration test
         run: node --test zaytoona/tests/orchestrator.test.mjs
+      - name: Run generic competency engine test
+        run: node --test zaytoona/competency-engine.test.mjs
