@@ -50,3 +50,5 @@ jobs:
             git commit -m 'chore(zaytoona): persist autonomous runtime checkpoint'
             git push
           fi
+
+# One safe job per wake; durable state carries continuity between wakes.
