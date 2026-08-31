@@ -1,0 +1,3 @@
+import { MODULE_CONTRACT } from './contracts.mjs';
+export function createRegistry(){const modules=new Map();return {register(m){for(const k of MODULE_CONTRACT.required)if(m?.[k]==null)throw new Error(`INVALID_MODULE:${k}`);if(modules.has(m.id))throw new Error(`DUPLICATE_MODULE:${m.id}`);modules.set(m.id,Object.freeze({...m,capabilities:[...(m.capabilities||[])]}));return m;},get(id){return modules.get(id)||null},list(){return [...modules.values()]},has(id){return modules.has(id)}}}
+export function kefayatModule({run,verify}){return {id:'kefayat',version:'1.0',capabilities:['catalog','coverage','provenance','deduplication'],run,verify};}
