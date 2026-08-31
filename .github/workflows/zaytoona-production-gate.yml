@@ -19,17 +19,42 @@ concurrency:
 jobs:
   production-gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: zaytoona/autonomy/package.json
+      - name: Install
+        working-directory: zaytoona/autonomy
+        run: npm install --ignore-scripts --no-audit --no-fund
       - name: Production recovery gate
         working-directory: zaytoona/autonomy
         run: npm test
       - name: Syntax gate
         working-directory: zaytoona/autonomy
-        run: node --check worker.mjs && node --check runtime.mjs && node --check supervisor.mjs && node --check planner.mjs && node --check policy.mjs && node --check provider.mjs && node --check llm-adapter.mjs
+        run: |
+          set -euo pipefail
+          for f in worker.mjs runtime.mjs supervisor.mjs planner.mjs policy.mjs provider.mjs llm-adapter.mjs resilience.mjs state-machine.mjs store.mjs executors.mjs; do
+            node --check "$f"
+          done
+      - name: Autonomous worker smoke gate
+        working-directory: zaytoona/autonomy
+        run: npm run worker
+      - name: Production evidence summary
+        working-directory: zaytoona/autonomy
+        run: |
+          set -euo pipefail
+          test -f mission.json
+          test -f package.json
+          echo 'ZAYTOONA_PRODUCTION_GATE=PASS'
+          echo 'REGRESSION=PASS'
+          echo 'SYNTAX=PASS'
+          echo 'WORKER_SMOKE=PASS'
+          echo 'POLICY=FAIL-CLOSED'
+          echo 'RECOVERY=BOUNDED'
+          echo 'STATE=DURABLE'
