@@ -1,3 +1,4 @@
+# trigger: E2E contract updated; run full master gate
 # CI trigger after release-gate schema update
 #!/usr/bin/env python3
 import json,re,hashlib,subprocess,sys,zipfile,xml.etree.ElementTree as ET
@@ -87,8 +88,7 @@ def main():
  gaps=[{'grade':g,'subject':s,'count':cov[(g,s)]} for g,s in sorted(EXPECTED) if cov[(g,s)]==0]
  variants={};conf=[]
  for r in allr:
-  k=(r['grade'],r['subject'],r['domain'],r['competency'],r['standard'],r['indicator'])
-  variants.setdefault(k,set()).add((r['value'],r['mastery'],r['developing'],r['attempting']))
+  k=(r['grade'],r['subject'],r['domain'],r['competency'],r['standard'],r['indicator']);variants.setdefault(k,set()).add((r['value'],r['mastery'],r['developing'],r['attempting']))
  for k,v in variants.items():
   if len(v)>1:conf.append({'key':k,'variants':list(v)[:20]})
  unique={}
