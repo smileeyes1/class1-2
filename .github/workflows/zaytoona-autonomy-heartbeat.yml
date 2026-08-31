@@ -4,19 +4,29 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '*/15 * * * *'
+  push:
+    paths:
+      - 'zaytoona/autonomy/**'
 
 permissions:
   contents: read
 
 jobs:
-  heartbeat:
+  autonomy-regression:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Runtime health contract
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Runtime regression
+        working-directory: zaytoona/autonomy
+        run: npm test
+      - name: Control-plane contract check
         run: |
           test -f zaytoona/AUTONOMOUS_CONTROL_PLANE.md
           test -f zaytoona/autonomy/README.md
-          echo 'ZAYTOONA autonomy control-plane artifacts present.'
+          echo 'Control-plane artifacts present.'
