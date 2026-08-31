@@ -1,3 +1,4 @@
+# Ω master-audit trigger revision 2026-08-31
 name: Ω KEFAYAT MASTER AUDIT
 on:
   workflow_dispatch:
