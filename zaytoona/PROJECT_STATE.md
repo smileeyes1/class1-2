@@ -29,9 +29,10 @@
 - Source provenance and SHA-256 hashes are stored in the catalog metadata.
 - Adversarial hardening identified and fixed the visual-order weakness.
 - Current branch contains the corrected fixture and user-facing slice.
+- Post-sync assurance trigger committed; the next assurance run evaluates the synchronized catalog.
 
 ## Current external verification
-- GitHub Actions assurance must still be re-run against the post-sync catalog before it can be called PASS.
+- GitHub Actions assurance is now evaluating the post-sync catalog; only a completed successful run will be called PASS.
 - Static delivery workflow exists but successful Pages deployment is **NOT VERIFIED**; recent Pages runs failed.
 
 ## Open
