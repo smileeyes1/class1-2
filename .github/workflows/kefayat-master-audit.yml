@@ -1,4 +1,4 @@
-# Ω master-audit trigger revision 2026-08-31
+# Ω master-audit trigger revision 2026-08-31-r2
 name: Ω KEFAYAT MASTER AUDIT
 on:
   workflow_dispatch:
@@ -6,6 +6,8 @@ on:
     branches: [main]
     paths:
       - 'scripts/kefayat-master-audit.py'
+      - 'scripts/kefayat-regression.mjs'
+      - 'zaytoona/tests/**'
       - '.github/workflows/kefayat-master-audit.yml'
       - 'zaytoona/**'
       - 'package.json'
@@ -65,5 +67,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
       - run: npm run test:release
