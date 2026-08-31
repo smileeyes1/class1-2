@@ -1,1 +1,1 @@
-{"name":"zaytoona","private":true,"type":"module","scripts":{"test:omega":"node --test zaytoona/tests/omega-browser.test.mjs zaytoona/tests/orchestrator.test.mjs"}}
+{"name":"zaytoona","private":true,"type":"module","scripts":{"test:omega":"node --test zaytoona/tests/omega-browser.test.mjs zaytoona/tests/orchestrator.test.mjs","test:annual":"node --test zaytoona/tests/annual-learning-engine.test.mjs","test:all":"npm run test:omega && npm run test:annual"}}
