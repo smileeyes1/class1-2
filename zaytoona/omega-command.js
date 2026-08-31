@@ -1,4 +1,4 @@
-/* ZAYTOONA Ω COMMAND v1.2 — mission control aligned with production learning core. */
+/* ZAYTOONA Ω COMMAND v1.2 — mission control aligned with production learning core. RELEASE-CANDIDATE. */
 (function(global){'use strict';
  const S=()=>global.ZaytoonaOmegaState,F=()=>global.ZaytoonaOmegaFactory;
  const jobs=[
