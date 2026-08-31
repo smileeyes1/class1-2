@@ -3,7 +3,7 @@ name: ZAYTOONA Ω autonomous runtime
 on:
   workflow_dispatch:
   schedule:
-    # GitHub Actions minimum supported scheduled interval: 5 minutes.
+    # Five-minute wake is the fastest GitHub-hosted schedule available.
     - cron: '*/5 * * * *'
   push:
     paths:
@@ -47,7 +47,7 @@ jobs:
         working-directory: zaytoona/autonomy
         run: |
           set -euo pipefail
-          for f in worker.mjs runtime.mjs supervisor.mjs planner.mjs policy.mjs provider.mjs llm-adapter.mjs resilience.mjs state-machine.mjs store.mjs executors.mjs; do
+          for f in worker.mjs runtime.mjs supervisor.mjs planner.mjs policy.mjs provider.mjs llm-adapter.mjs resilience.mjs state-machine.mjs store.mjs executors.mjs adaptive-pulse.mjs; do
             node --check "$f"
           done
 
