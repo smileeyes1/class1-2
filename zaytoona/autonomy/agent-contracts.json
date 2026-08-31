@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "agents": [
+    {"id":"curriculum","capabilities":["curriculum-map","source-check"]},
+    {"id":"content","capabilities":["lesson-draft","activity","worksheet"]},
+    {"id":"math","capabilities":["arithmetic-verify","count-verify","math-order-verify"]},
+    {"id":"language","capabilities":["arabic-review"]},
+    {"id":"visual","capabilities":["visual-count-review","rtl-order-review"]},
+    {"id":"assessment","capabilities":["assessment-align","rubric"]},
+    {"id":"red-team","capabilities":["adversarial-review"]},
+    {"id":"evidence","capabilities":["evidence-audit"]}
+  ],
+  "rule": "Agents may propose and execute only allowlisted capabilities; policy and human-gate controls remain authoritative."
+}
