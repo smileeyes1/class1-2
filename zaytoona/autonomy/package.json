@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "test": "node --test *.test.mjs",
-    "start": "node worker.mjs",
+    "start": "node daemon.mjs",
+    "daemon": "node daemon.mjs",
     "worker": "node worker.mjs"
   },
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=24" }
 }
