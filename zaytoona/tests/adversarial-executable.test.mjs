@@ -4,21 +4,21 @@ import { generateAdditionWithin10 } from '../generator.mjs';
 import { validateLesson } from '../validator.mjs';
 
 const attacks = {
-  arithmetic: p => { p.math_operations[0].result = 99; },
-  visualOrder: p => { p.math_operations[0].visual_order = 'result→equals→operand_2→operator→operand_1'; },
-  visualCount: p => { p.visual_counts[0].actual_count += 1; },
-  alignment: p => { p.activities[0].objective_links = []; },
-  time: p => { p.timeline.total_minutes = 46; },
-  evidence: p => { p.evidence[0].source = null; p.evidence[0].evidence = null; }
+  arithmetic: { mutate: p => { p.math_operations[0].result = 99; }, id: 'MATH-001' },
+  visualOrder: { mutate: p => { p.math_operations[0].visual_order = 'result→equals→operand_2→operator→operand_1'; }, id: 'MATH-VIS-001' },
+  visualCount: { mutate: p => { p.visual_counts[0].actual_count += 1; }, id: 'VIS-COUNT-001' },
+  alignment: { mutate: p => { p.activities[0].objective_links = []; }, id: 'ALIGN-001' },
+  time: { mutate: p => { p.timeline.total_minutes = 46; }, id: 'TIME-002' },
+  evidence: { mutate: p => { p.evidence[0].source = null; p.evidence[0].evidence = null; }, id: 'EVID-001' }
 };
 
-for (const [name, mutate] of Object.entries(attacks)) {
+for (const [name, attack] of Object.entries(attacks)) {
   test(`red-team rejects ${name}`, () => {
     const p = structuredClone(generateAdditionWithin10());
-    mutate(p);
+    attack.mutate(p);
     const result = validateLesson(p);
     assert.equal(result.state, 'NO-GO');
-    assert.ok(result.failures.length > 0);
+    assert.ok(result.failures.some(x => x.id === attack.id));
   });
 }
 
