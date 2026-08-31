@@ -1,0 +1,66 @@
+{
+  "id": "g1-math-addition-within-10-v1",
+  "version": "1.0",
+  "context": {
+    "grade": 1,
+    "subject": "الرياضيات",
+    "topic": "الجمع ضمن ١٠",
+    "curriculum_refs": ["الصف الأول > الرياضيات > الوحدة الثالثة > الجمع ضمن العدد (١٠)"]
+  },
+  "objective": "أن يجمع الطالب عددين مجموعهما لا يتجاوز ١٠ باستخدام تمثيل محسوس أو مصور ثم يكتب العملية الصحيحة.",
+  "success_criterion": "يحل الطالب ٤ من ٥ مسائل جمع ضمن ١٠ بصورة صحيحة، ويطابق كل مسألة مع تمثيلها.",
+  "timeline": {
+    "total_minutes": 45,
+    "segments": [
+      {"name": "تهيئة واستدعاء المعرفة السابقة", "minutes": 5},
+      {"name": "تمثيل محسوس", "minutes": 10},
+      {"name": "تمثيل مصور ورمزي", "minutes": 10},
+      {"name": "تدريب موجه", "minutes": 8},
+      {"name": "تطبيق فردي", "minutes": 7},
+      {"name": "تقويم وإغلاق", "minutes": 5}
+    ]
+  },
+  "activities": [
+    {
+      "id": "act-01",
+      "purpose": "بناء معنى الجمع بوصفه ضم مجموعتين.",
+      "instructions": "ضع ٣ أشياء ثم أضف إليها ٤ أشياء، اطلب من الطالب عدّ المجموعة كلها ثم تمثيلها بالعملية.",
+      "objective_links": ["objective"]
+    }
+  ],
+  "assessment": {
+    "items": [
+      {"id": "q1", "expression": "٣ + ٢ = ؟", "answer": 5},
+      {"id": "q2", "expression": "٤ + ٣ = ؟", "answer": 7},
+      {"id": "q3", "expression": "٥ + ٢ = ؟", "answer": 7},
+      {"id": "q4", "expression": "٦ + ٤ = ؟", "answer": 10},
+      {"id": "q5", "expression": "١ + ٨ = ؟", "answer": 9}
+    ],
+    "answer_key": [5, 7, 7, 10, 9]
+  },
+  "artifacts": [
+    {"id": "teacher-guide", "type": "teacher_guide", "status": "generated"},
+    {"id": "student-worksheet", "type": "worksheet", "status": "generated"},
+    {"id": "activity", "type": "activity", "status": "generated"},
+    {"id": "assessment", "type": "assessment", "status": "generated"}
+  ],
+  "evidence": [
+    {
+      "claim": "موضوع الجمع ضمن العدد ١٠ موجود في بيانات المنهج المحلية للمشروع للصف الأول.",
+      "source": "curriculum-offline.json",
+      "evidence": "الوحدة الثالثة تتضمن: الدرس الثامن: الجمع ضمن العدد (١٠)",
+      "status": "checked"
+    }
+  ],
+  "math_operations": [
+    {"operand_1": 3, "operator": "+", "operand_2": 2, "result": 5},
+    {"operand_1": 4, "operator": "+", "operand_2": 3, "result": 7},
+    {"operand_1": 5, "operator": "+", "operand_2": 2, "result": 7},
+    {"operand_1": 6, "operator": "+", "operand_2": 4, "result": 10},
+    {"operand_1": 1, "operator": "+", "operand_2": 8, "result": 9}
+  ],
+  "assurance": {
+    "state": "READY_FOR_EXECUTION",
+    "checks": []
+  }
+}
