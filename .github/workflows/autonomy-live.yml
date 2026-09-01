@@ -1,0 +1,17 @@
+name: ZAYTOONA Autonomous Runner Live Test
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'zaytoona/autonomy/**'
+      - '.github/workflows/autonomy-live.yml'
+  workflow_dispatch:
+jobs:
+  chaos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 24}
+      - name: Live recovery and concurrency tests
+        run: node --test zaytoona/autonomy/runner-live.test.mjs zaytoona/autonomy/adversarial.test.mjs
