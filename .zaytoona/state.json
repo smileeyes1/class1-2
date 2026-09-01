@@ -9047,16 +9047,51 @@
     },
     {
       "id": "adversarial-gate",
-      "status": "READY",
+      "status": "PASSED",
       "priority": 85,
       "type": "run_adversarial_gate",
       "dependsOn": [
         "lesson-package"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "lease": null,
       "error": null,
-      "evidence": null
+      "evidence": {
+        "ok": true,
+        "type": "run_adversarial_gate",
+        "tests": [
+          {
+            "file": "zaytoona/tests/validator.test.mjs",
+            "ok": true,
+            "output": "✔ valid package passes deterministic assurance checks (1.231348ms)\n✔ incorrect arithmetic is rejected (0.331829ms)\n✔ lesson over 45 minutes is rejected (1.040471ms)\n✔ activity without objective link is rejected (0.201867ms)\n✔ unsupported curriculum claim without evidence is rejected (0.223317ms)\n✔ incorrect visual order is rejected (0.217977ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 97.125121\n",
+            "error": ""
+          },
+          {
+            "file": "zaytoona/tests/generation-e2e.test.mjs",
+            "ok": true,
+            "output": "✔ addition within 10 vertical slice generates and validates (1.517ms)\n✔ vertical slice contains no answer-key drift (6.103226ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 69.306541\n",
+            "error": ""
+          },
+          {
+            "file": "zaytoona/tests/adversarial-executable.test.mjs",
+            "ok": true,
+            "output": "✔ red-team rejects arithmetic (3.702697ms)\n✔ red-team rejects visualOrder (0.524278ms)\n✔ red-team rejects visualCount (0.417649ms)\n✔ red-team rejects alignment (0.475737ms)\n✔ red-team rejects time (0.461461ms)\n✔ red-team rejects evidence (0.358058ms)\n✔ repair returns package to PASS after restoring the mutated field (0.444159ms)\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 79.750124\n",
+            "error": ""
+          },
+          {
+            "file": "zaytoona/tests/orchestrator.test.mjs",
+            "ok": true,
+            "output": "✔ autonomous vertical slice reaches conditional release only after red-team detection (4.201238ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 72.472444\n",
+            "error": ""
+          },
+          {
+            "file": "zaytoona/competency-engine.test.mjs",
+            "ok": true,
+            "output": "competency engine tests: PASS\n✔ zaytoona/competency-engine.test.mjs (53.504139ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 62.655623\n",
+            "error": ""
+          }
+        ]
+      }
     },
     {
       "id": "release-evidence",
@@ -9100,9 +9135,20 @@
       "type": "PASSED",
       "at": "2026-09-01T07:19:56.808Z",
       "jobId": "lesson-package"
+    },
+    {
+      "type": "CLAIMED",
+      "at": "2026-09-01T07:27:29.013Z",
+      "jobId": "adversarial-gate",
+      "fence": "github-actions:1788247649013:hnfnvmaojj"
+    },
+    {
+      "type": "PASSED",
+      "at": "2026-09-01T07:27:29.625Z",
+      "jobId": "adversarial-gate"
     }
   ],
-  "updatedAt": "2026-09-01T07:19:56.808Z",
+  "updatedAt": "2026-09-01T07:27:29.625Z",
   "control": {
     "lastDecision": {
       "kind": "EXECUTE",
