@@ -10,10 +10,30 @@ assert.ok(catalog.recordCount>0,'CATALOG_EMPTY');
 function env(){const store=new Map();const localStorage={setItem:(k,v)=>store.set(k,String(v)),getItem:k=>store.get(k)??null,removeItem:k=>store.delete(k)};const el=id=>({id,innerHTML:'',textContent:'',value:'',dataset:{},style:{},children:[],appendChild(x){this.children.push(x)},insertAdjacentHTML(){},querySelector(){return {value:'',onclick:null}},querySelectorAll(){return[]}});const document={body:el('body'),head:el('head'),createElement:tag=>el(tag),getElementById:()=>null,querySelector:()=>null,querySelectorAll:()=>[]};const c={console,localStorage,document,crypto:{randomUUID:()=>`e2e-${Math.random()}`},setTimeout,clearTimeout,Promise,Math,Date,structuredClone,fetch:async()=>({ok:true,json:async()=>catalog})};c.window=c;vm.createContext(c);return c}
 const load=async(c,p)=>vm.runInContext(await read(p),c,{filename:p});
 
-test('Ω E2E: Kefayat → annual → lesson → diagnostic → recovery → mastery → meta orchestrator → GO',async()=>{
- const c=env();await load(c,'zaytoona/annual-learning-engine-v1.js');await c.ZaytoonaAnnualLearning.load();const competency=c.ZaytoonaAnnualLearning.plan()[0];assert.ok(competency?.id);assert.equal(competency.grade,1);assert.equal(competency.subject,'arabic');assert.ok(competency.week>=1&&competency.week<=36);
- await load(c,'zaytoona/smart-lesson-generator-v1.js');const lesson=c.ZaytoonaSmartLesson.build(competency);assert.equal(lesson.competencyId,competency.id);assert.equal(lesson.duration,45);assert.ok(lesson.stages.length>=6);
- await load(c,'zaytoona/assessment-engine-v1.js');const diagnostic=c.ZaytoonaAssessment.assess(lesson,60,.8);assert.equal(diagnostic.mastered,false);c.ZaytoonaAnnualLearning.setState(competency.id,{status:'قيد التطور',stageIndex:1,week:competency.week});const final=c.ZaytoonaAssessment.assess(lesson,100,.8);assert.equal(final.mastered,true);c.ZaytoonaAnnualLearning.setState(competency.id,{status:'متقنة',stageIndex:0,week:competency.week});assert.equal(c.ZaytoonaAnnualLearning.state(competency.id).status,'متقنة');
- const registry=createRegistry();registry.register(kefayatModule({run:async()=>({ok:true,competencyId:competency.id,lessonId:lesson.id,diagnostic,final,mastery:c.ZaytoonaAnnualLearning.state(competency.id)}),verify:async r=>({ok:r.ok&&r.final.mastered&&r.mastery.status==='متقنة',evidence:{competencyId:r.competencyId,lessonId:r.lessonId}})}));
- const job=jobContract({id:'student-cycle-001',type:'kefayat:student-cycle',module:'kefayat',status:'READY',priority:10,maxAttempts:2});const pipeline=await runPipeline({registry,state:{missionId:'student-cycle-e2e',jobs:[job]},context:{catalogRecordCount:catalog.recordCount},concurrency:1});assert.equal(pipeline.ok,true);assert.equal(pipeline.state.jobs[0].status,'PASSED');const check=validateCatalog(catalog);assert.equal(check.ok,true);const gate=releaseGate({catalog,modules:registry.list(),state:pipeline.state});assert.equal(gate.status,'GO');console.log(JSON.stringify({status:'PASS',pipeline:['KEFAYAT','ANNUAL_LEARNING','LESSON_GENERATOR','DIAGNOSTIC','RECOVERY','FINAL_ASSESSMENT','MASTERY','META_ORCHESTRATOR','RELEASE_GATE'],competency:{id:competency.id,grade:competency.grade,subject:competency.subject,week:competency.week},lesson:{id:lesson.id,duration:lesson.duration,stages:lesson.stages.length},assessment:{diagnostic:diagnostic.score,final:final.score,mastered:final.mastered},meta:{job:pipeline.state.jobs[0].status,release:gate.status}}));
+test('Ω E2E real student cycle',async()=>{
+ const c=env();
+ await load(c,'zaytoona/annual-learning-engine-v1.js');
+ await c.ZaytoonaAnnualLearning.load();
+ const competency=c.ZaytoonaAnnualLearning.plan()[0];
+ assert.ok(competency?.id,'NO_COMPETENCY'); assert.equal(competency.grade,1); assert.equal(competency.subject,'arabic');
+ await load(c,'zaytoona/smart-lesson-generator-v1.js');
+ const lesson=c.ZaytoonaSmartLesson.build(competency);
+ assert.equal(lesson.competencyId,competency.id); assert.equal(lesson.duration,45); assert.ok(lesson.stages.length>=6);
+ await load(c,'zaytoona/assessment-engine-v1.js');
+ const diagnostic=c.ZaytoonaAssessment.assess(lesson,60,.8); assert.equal(diagnostic.mastered,false);
+ c.ZaytoonaAnnualLearning.setState(competency.id,{status:'قيد التطور',stageIndex:1,week:competency.week});
+ const final=c.ZaytoonaAssessment.assess(lesson,100,.8); assert.equal(final.mastered,true);
+ c.ZaytoonaAnnualLearning.setState(competency.id,{status:'متقنة',stageIndex:0,week:competency.week});
+ assert.equal(c.ZaytoonaAnnualLearning.state(competency.id).status,'متقنة');
+ const registry=createRegistry();
+ registry.register(kefayatModule({
+   run:async()=>({ok:true,competencyId:competency.id,lessonId:lesson.id,diagnostic,final,mastery:c.ZaytoonaAnnualLearning.state(competency.id)}),
+   verify:async r=>({ok:r.ok&&r.final.mastered&&r.mastery.status==='متقنة',evidence:{competencyId:r.competencyId,lessonId:r.lessonId}})
+ }));
+ const job=jobContract({id:'student-cycle-001',type:'kefayat:student-cycle',module:'kefayat',status:'READY',priority:10,maxAttempts:2});
+ const pipeline=await runPipeline({registry,state:{missionId:'student-cycle-e2e',jobs:[job]},context:{catalogRecordCount:catalog.recordCount},concurrency:1});
+ assert.equal(pipeline.ok,true); assert.equal(pipeline.state.jobs[0].status,'PASSED');
+ const check=validateCatalog(catalog); assert.equal(check.ok,true);
+ const gate=releaseGate({catalog,modules:registry.list(),state:pipeline.state}); assert.equal(gate.status,'GO');
+ console.log(JSON.stringify({status:'PASS',pipeline:['KEFAYAT','ANNUAL_LEARNING','LESSON_GENERATOR','DIAGNOSTIC','RECOVERY','FINAL_ASSESSMENT','MASTERY','META_ORCHESTRATOR','RELEASE_GATE'],competency:{id:competency.id,grade:competency.grade,subject:competency.subject,week:competency.week},lesson:{id:lesson.id,duration:lesson.duration,stages:lesson.stages.length},assessment:{diagnostic:diagnostic.score,final:final.score,mastered:final.mastered},release:gate.status}));
 });
