@@ -1,4 +1,4 @@
-# Ω master-audit trigger revision 2026-08-31-r4
+# Ω master-audit trigger revision 2026-08-31-r5
 name: Ω KEFAYAT MASTER AUDIT
 on:
   workflow_dispatch:
@@ -56,15 +56,23 @@ jobs:
         run: node scripts/zaytoona-e2e.mjs
       - name: Commit canonical catalog only after PASS
         if: steps.audit.outcome == 'success'
+        shell: bash
         run: |
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add zaytoona/kefayat/catalog.json zaytoona/kefayat/catalog.min.json zaytoona/kefayat/master-audit.json
           if git diff --cached --quiet; then echo 'CATALOG_UNCHANGED'; exit 0; fi
           git commit -m 'chore(zaytoona): publish audited Kefayat canonical catalog'
-          git fetch origin main
-          git rebase origin/main
-          git push origin HEAD:main
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git rebase origin/main || { git rebase --abort; exit 1; }
+            if git push origin HEAD:main; then exit 0; fi
+            echo "push race detected; retrying (${attempt}/3)"
+            sleep 2
+          done
+          echo 'unable to publish catalog after bounded retries' >&2
+          exit 1
   gate:
     needs: audit
     if: needs.audit.outputs.audit_status == 'PASS'
