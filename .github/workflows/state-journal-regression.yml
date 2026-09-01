@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: State journal regression
+      - name: State journal baseline regression
         run: node --test zaytoona/autonomy/state-journal.test.mjs
-      - name: Crash recovery regression
-        run: node --test zaytoona/autonomy/adversarial.test.mjs
+      - name: Crash Offline Recovery Resume adversarial regression
+        run: node --test zaytoona/autonomy/state-journal.adversarial.test.mjs zaytoona/autonomy/adversarial.test.mjs
