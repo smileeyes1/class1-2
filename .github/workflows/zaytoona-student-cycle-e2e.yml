@@ -1,0 +1,30 @@
+name: ZAYTOONA Ω Student Cycle E2E
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'zaytoona/tests/meta-student-cycle.e2e.test.mjs'
+      - 'zaytoona/meta-system/**'
+      - 'zaytoona/annual-learning-engine-v1.js'
+      - 'zaytoona/smart-lesson-generator-v1.js'
+      - 'zaytoona/assessment-engine-v1.js'
+      - 'zaytoona/kefayat/catalog.json'
+      - 'package.json'
+permissions:
+  contents: read
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Student cycle E2E
+        run: node --test zaytoona/tests/meta-student-cycle.e2e.test.mjs
+      - name: Release Gate
+        run: npm run test:release
+      - name: Final evidence
+        run: echo 'KEFAYAT_STUDENT_CYCLE_E2E=PASS' && echo 'RELEASE_GATE=PASS'
