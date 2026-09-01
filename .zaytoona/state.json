@@ -8958,16 +8958,22 @@
     },
     {
       "id": "annual-plan-build",
-      "status": "READY",
+      "status": "PASSED",
       "priority": 110,
       "type": "build_annual_plan",
       "dependsOn": [
         "kefayat-catalog-gate"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "lease": null,
       "error": null,
-      "evidence": null
+      "evidence": {
+        "ok": true,
+        "type": "build_annual_plan",
+        "artifact": "./artifacts/annual-plan.json",
+        "plans": 4,
+        "competencies": 1099
+      }
     },
     {
       "id": "learning-core-gate",
@@ -9043,21 +9049,21 @@
       "at": "2026-08-31T18:15:26.387Z"
     }
   ],
-  "updatedAt": "2026-08-31T22:55:46.099Z",
+  "updatedAt": "2026-09-01T01:44:21.100Z",
   "control": {
     "lastDecision": {
       "kind": "EXECUTE",
-      "jobId": "kefayat-catalog-gate",
-      "priority": 115,
-      "type": "validate_kefayat_catalog"
+      "jobId": "annual-plan-build",
+      "priority": 110,
+      "type": "build_annual_plan"
     },
-    "decidedAt": "2026-08-31T22:55:46.072Z",
+    "decidedAt": "2026-09-01T01:44:21.047Z",
     "nextWake": {
       "version": 1,
       "reason": "WORK_READY",
       "delayMs": 300000,
-      "nextWakeAt": "2026-08-31T23:00:46.072Z",
-      "computedAt": "2026-08-31T22:55:46.072Z"
+      "nextWakeAt": "2026-09-01T01:49:21.047Z",
+      "computedAt": "2026-09-01T01:44:21.047Z"
     }
   }
 }
