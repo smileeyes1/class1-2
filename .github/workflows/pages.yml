@@ -1,5 +1,6 @@
 name: ZAYTOONA Static Delivery
 
+# GO release pipeline: canonical Kefayat audit -> release gate -> Pages deploy
 on:
   push:
     branches: [main]
