@@ -26,10 +26,7 @@ test('Ω E2E real student cycle',async()=>{
  c.ZaytoonaAnnualLearning.setState(competency.id,{status:'متقنة',stageIndex:0,week:competency.week});
  assert.equal(c.ZaytoonaAnnualLearning.state(competency.id).status,'متقنة');
  const registry=createRegistry();
- registry.register(kefayatModule({
-   run:async()=>({ok:true,competencyId:competency.id,lessonId:lesson.id,diagnostic,final,mastery:c.ZaytoonaAnnualLearning.state(competency.id)}),
-   verify:async r=>({ok:r.ok&&r.final.mastered&&r.mastery.status==='متقنة',evidence:{competencyId:r.competencyId,lessonId:r.lessonId}})
- }));
+ registry.register(kefayatModule({run:async()=>({ok:true,competencyId:competency.id,lessonId:lesson.id,diagnostic,final,mastery:c.ZaytoonaAnnualLearning.state(competency.id)}),verify:async r=>({ok:r.ok&&r.final.mastered&&r.mastery.status==='متقنة',evidence:{competencyId:r.competencyId,lessonId:r.lessonId}})}));
  const job=jobContract({id:'student-cycle-001',type:'kefayat:student-cycle',module:'kefayat',status:'READY',priority:10,maxAttempts:2});
  const pipeline=await runPipeline({registry,state:{missionId:'student-cycle-e2e',jobs:[job]},context:{catalogRecordCount:catalog.recordCount},concurrency:1});
  assert.equal(pipeline.ok,true); assert.equal(pipeline.state.jobs[0].status,'PASSED');
@@ -37,3 +34,4 @@ test('Ω E2E real student cycle',async()=>{
  const gate=releaseGate({catalog,modules:registry.list(),state:pipeline.state}); assert.equal(gate.status,'GO');
  console.log(JSON.stringify({status:'PASS',pipeline:['KEFAYAT','ANNUAL_LEARNING','LESSON_GENERATOR','DIAGNOSTIC','RECOVERY','FINAL_ASSESSMENT','MASTERY','META_ORCHESTRATOR','RELEASE_GATE'],competency:{id:competency.id,grade:competency.grade,subject:competency.subject,week:competency.week},lesson:{id:lesson.id,duration:lesson.duration,stages:lesson.stages.length},assessment:{diagnostic:diagnostic.score,final:final.score,mastered:final.mastered},release:gate.status}));
 });
+
