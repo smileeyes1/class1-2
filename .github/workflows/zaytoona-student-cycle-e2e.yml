@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '.github/workflows/zaytoona-student-cycle-e2e.yml'
       - 'zaytoona/tests/meta-student-cycle.e2e.test.mjs'
       - 'zaytoona/meta-system/**'
       - 'zaytoona/annual-learning-engine-v1.js'
