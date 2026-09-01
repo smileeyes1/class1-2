@@ -1,0 +1,24 @@
+name: ZAYTOONA Ω Integrated Student E2E
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Kefayat catalog integrity
+        run: node scripts/kefayat-regression.mjs
+      - name: Real student cycle
+        run: node --test zaytoona/tests/meta-student-cycle.e2e.test.mjs
+      - name: Release Gate
+        run: npm run test:release
+      - name: GO evidence
+        run: echo 'KEFAYAT=PASS' && echo 'STUDENT_CYCLE=PASS' && echo 'RELEASE_GATE=PASS'
