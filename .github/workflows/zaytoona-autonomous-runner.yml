@@ -1,5 +1,11 @@
 name: ZAYTOONA Ω Autonomous Runner
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'zaytoona/autonomy/**'
+      - '.zaytoona/state.json'
+      - '.github/workflows/zaytoona-autonomous-runner.yml'
   workflow_dispatch:
   schedule:
     - cron: '*/5 * * * *'
