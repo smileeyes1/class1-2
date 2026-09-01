@@ -9095,16 +9095,34 @@
     },
     {
       "id": "release-evidence",
-      "status": "READY",
+      "status": "PASSED",
       "priority": 80,
       "type": "prepare_release_evidence",
       "dependsOn": [
         "adversarial-gate"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "lease": null,
       "error": null,
-      "evidence": null
+      "evidence": {
+        "ok": true,
+        "type": "prepare_release_evidence",
+        "artifact": "./artifacts/release-evidence.json",
+        "evidence": {
+          "schemaVersion": 1,
+          "status": "GO_CANDIDATE",
+          "generatedAt": "2026-09-01T07:34:26.083Z",
+          "catalogRecords": 1099,
+          "grades": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "policy": "fail-closed; human gate retained for irreversible/high-impact actions",
+          "next": "production deployment requires the repository delivery gate"
+        }
+      }
     }
   ],
   "events": [
@@ -9146,9 +9164,20 @@
       "type": "PASSED",
       "at": "2026-09-01T07:27:29.625Z",
       "jobId": "adversarial-gate"
+    },
+    {
+      "type": "CLAIMED",
+      "at": "2026-09-01T07:34:26.052Z",
+      "jobId": "release-evidence",
+      "fence": "github-actions:1788248066052:0tnw6zdm7mh"
+    },
+    {
+      "type": "PASSED",
+      "at": "2026-09-01T07:34:26.102Z",
+      "jobId": "release-evidence"
     }
   ],
-  "updatedAt": "2026-09-01T07:27:29.625Z",
+  "updatedAt": "2026-09-01T07:34:26.107Z",
   "control": {
     "lastDecision": {
       "kind": "EXECUTE",
