@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+async function env(){const dir=await mkdtemp(join(tmpdir(),'zaytoona-runner-'));process.env.ZAYTOONA_STATE=join(dir,'state.json');process.env.ZAYTOONA_EVIDENCE=join(dir,'evidence.ndjson');process.env.ZAYTOONA_MAX_ATTEMPTS='3';process.env.ZAYTOONA_WORKER='test-worker';const store=await import(`./store.mjs?${Date.now()}-${Math.random()}`);const runtime=await import(`./runtime.mjs?${Date.now()}-${Math.random()}`);return{dir,store,runtime}}
+async function seed(store,jobs){await store.saveState(process.env.ZAYTOONA_STATE,{version:1,missions:[],events:[],jobs})}
+
+test('live: success',async()=>{const e=await env();try{await seed(e.store,[{id:'ok',status:'READY',priority:1,attempts:0}]);const r=await e.runtime.runOnce(async()=>({ok:true,artifact:'success'}));assert.equal(r.status,'PASSED');}finally{await rm(e.dir,{recursive:true,force:true})}});
+test('live: failure then retry',async()=>{const e=await env();try{await seed(e.store,[{id:'retry',status:'READY',priority:1,attempts:0}]);let n=0;const a=async()=>{n++;if(n===1)throw Error('FAIL_ONCE');return{ok:true}};assert.equal((await e.runtime.runOnce(a)).status,'READY');assert.equal((await e.runtime.runOnce(a)).status,'PASSED');assert.equal(n,2)}finally{await rm(e.dir,{recursive:true,force:true})}});
+test('live: persisted interruption and resume',async()=>{const e=await env();try{await seed(e.store,[{id:'orphan',status:'RUNNING',priority:1,attempts:1,lease:{worker:'dead-worker',fence:'old',expiresAt:new Date(Date.now()-1000).toISOString()}}]);const r=await e.runtime.runOnce(async()=>({ok:true,artifact:'resumed'}));assert.equal(r.status,'PASSED');const s=await e.store.loadState(process.env.ZAYTOONA_STATE);assert.equal(s.jobs[0].status,'PASSED')}finally{await rm(e.dir,{recursive:true,force:true})}});
+test('live: parallel lease conflict',async()=>{const e=await env();try{await seed(e.store,[{id:'parallel',status:'READY',priority:1,attempts:0}]);let release;const gate=new Promise(r=>release=r);const first=e.runtime.runOnce(async()=>{await gate;return{ok:true}});await new Promise(r=>setTimeout(r,10));process.env.ZAYTOONA_WORKER='second-worker';const second=await e.runtime.runOnce(async()=>({ok:true}));assert.equal(second.status,'BUSY');release();assert.equal((await first).status,'PASSED')}finally{await rm(e.dir,{recursive:true,force:true})}});
+test('live: bounded failures block',async()=>{const e=await env();try{await seed(e.store,[{id:'block',status:'READY',priority:1,attempts:0}]);let r;for(let i=0;i<3;i++)r=await e.runtime.runOnce(async()=>{throw Error('ALWAYS_FAIL')});assert.equal(r.status,'BLOCKED');const s=await e.store.loadState(process.env.ZAYTOONA_STATE);assert.equal(s.jobs[0].attempts,3)}finally{await rm(e.dir,{recursive:true,force:true})}});
