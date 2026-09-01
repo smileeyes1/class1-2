@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/sync-kefayat.mjs'
+      - 'scripts/kefayat-regression.mjs'
       - '.github/workflows/zaytoona-kefayat-sync.yml'
       - 'zaytoona/kefayat-production-pipeline.mjs'
       - 'zaytoona/annual-learning-engine-v1.js'
@@ -23,15 +24,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout Kefayat source-of-truth
+        uses: actions/checkout@v4
+        with:
+          repository: smileeyes1/kefayat
+          ref: main
+          path: kefayat-source
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build complete Kefayat knowledge bases from source DOCX
+        working-directory: kefayat-source
+        run: |
+          python -m pip install --disable-pip-version-check python-docx
+          python tools/build_gem_kb.py
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - name: Generate real Kefayat catalog
+          node-version: 24
+      - name: Generate real Kefayat catalog from rebuilt KB
+        env:
+          KEFAYAT_LOCAL_DIR: kefayat-source
         run: node scripts/sync-kefayat.mjs
       - name: Catalog integrity regression
         run: node scripts/kefayat-regression.mjs
       - name: End-to-end production pipeline
         run: node zaytoona/kefayat-production-pipeline.mjs
+      - name: Full regression
+        run: npm run test:all
       - name: Existing release gate
         run: npm run test:release
       - name: Persist generated catalog and evidence
