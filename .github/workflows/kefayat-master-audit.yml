@@ -1,9 +1,8 @@
-# Ω master-audit trigger revision 2026-08-31-r4
 name: Ω KEFAYAT MASTER AUDIT
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, 'omega/**']
     paths:
       - 'scripts/kefayat-master-audit.py'
       - 'scripts/kefayat-regression.mjs'
@@ -38,7 +37,6 @@ jobs:
           python - <<'PY'
           import json,os
           d=json.load(open('/tmp/audit.json',encoding='utf-8'))
-          print('audit_status='+d['status'])
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('status='+d['status']+'\n')
           PY
           exit $code
@@ -55,7 +53,7 @@ jobs:
         if: steps.audit.outcome == 'success'
         run: node scripts/zaytoona-e2e.mjs
       - name: Commit canonical catalog only after PASS
-        if: steps.audit.outcome == 'success'
+        if: steps.audit.outcome == 'success' && github.ref == 'refs/heads/main'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
