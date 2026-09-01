@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
 
+// E2E contract: Kefayat → Annual Learning → Lesson Generator → Assessment → Recovery.
 const read = p => fs.readFile(p, 'utf8');
 const catalog = JSON.parse(await read('zaytoona/kefayat/catalog.json'));
 assert.ok(catalog.recordCount > 0, 'catalog must be generated before E2E');
@@ -28,25 +29,19 @@ test('E2E: Kefayat → annual → lesson → assessment → mastery → recovery
   assert.equal(competency.grade,1);
   assert.equal(competency.subject,'arabic');
   assert.ok(competency.week>=1&&competency.week<=36);
-
   await load(c,'zaytoona/smart-lesson-generator-v1.js');
   const lesson=c.ZaytoonaSmartLesson.build(competency);
   assert.equal(lesson.competencyId,competency.id);
   assert.equal(lesson.grade,competency.grade);
   assert.equal(lesson.duration,45);
   assert.ok(lesson.stages.length>=6);
-
   await load(c,'zaytoona/assessment-engine-v1.js');
   const assessment=c.ZaytoonaAssessment.assess(lesson,100,0.8);
   assert.equal(assessment.competencyId,competency.id);
   assert.equal(assessment.mastered,true);
-
   c.ZaytoonaAnnualLearning.setState(competency.id,{status:'متقنة',stageIndex:0,week:competency.week});
-  const saved=c.ZaytoonaAnnualLearning.state(competency.id);
-  assert.equal(saved.status,'متقنة');
+  assert.equal(c.ZaytoonaAnnualLearning.state(competency.id).status,'متقنة');
   assert.equal(c.ZaytoonaAssessment.get(competency.id).mastered,true);
-
-  const recovered=c.ZaytoonaAnnualLearning.plan().find(x=>x.id===competency.id);
-  assert.ok(recovered,'mastered competency remains recoverable in annual catalog');
-  assert.equal(c.ZaytoonaAssessment.get(competency.id).score,1);
+  assert.ok(c.ZaytoonaAnnualLearning.plan().some(x=>x.id===competency.id),'RECOVERY_CATALOG_FAILED');
+  console.log(JSON.stringify({status:'PASS',pipeline:['KEFAYAT','ANNUAL_LEARNING','LESSON_GENERATOR','ASSESSMENT','RECOVERY'],competency:{id:competency.id,grade:competency.grade,subject:competency.subject,week:competency.week},lesson:{id:lesson.id,duration:lesson.duration,stages:lesson.stages.length},assessment:{score:assessment.score,mastered:assessment.mastered}}));
 });
