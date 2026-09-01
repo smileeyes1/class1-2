@@ -9020,16 +9020,30 @@
     },
     {
       "id": "lesson-package",
-      "status": "READY",
+      "status": "PASSED",
       "priority": 90,
       "type": "build_lesson_package",
       "dependsOn": [
         "math-validator"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "lease": null,
       "error": null,
-      "evidence": null
+      "evidence": {
+        "ok": true,
+        "type": "build_lesson_package",
+        "artifact": "./artifacts/lesson-addition-within-10.json",
+        "validation": {
+          "ok": true,
+          "missing": [],
+          "duration": 45,
+          "math": {
+            "ok": true,
+            "failures": [],
+            "checked": 5
+          }
+        }
+      }
     },
     {
       "id": "adversarial-gate",
@@ -9075,9 +9089,20 @@
       "type": "PASSED",
       "at": "2026-09-01T07:16:49.561Z",
       "jobId": "math-validator"
+    },
+    {
+      "type": "CLAIMED",
+      "at": "2026-09-01T07:19:56.801Z",
+      "jobId": "lesson-package",
+      "fence": "github-actions:1788247196800:6l48alxys5g"
+    },
+    {
+      "type": "PASSED",
+      "at": "2026-09-01T07:19:56.808Z",
+      "jobId": "lesson-package"
     }
   ],
-  "updatedAt": "2026-09-01T07:16:49.561Z",
+  "updatedAt": "2026-09-01T07:19:56.808Z",
   "control": {
     "lastDecision": {
       "kind": "EXECUTE",
