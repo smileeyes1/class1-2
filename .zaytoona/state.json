@@ -8994,16 +8994,29 @@
     },
     {
       "id": "math-validator",
-      "status": "READY",
+      "status": "PASSED",
       "priority": 100,
       "type": "validate_math",
       "dependsOn": [
         "learning-core-gate"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "lease": null,
       "error": null,
-      "evidence": null
+      "evidence": {
+        "ok": true,
+        "type": "validate_math",
+        "validation": {
+          "ok": true,
+          "missing": [],
+          "duration": 45,
+          "math": {
+            "ok": true,
+            "failures": [],
+            "checked": 5
+          }
+        }
+      }
     },
     {
       "id": "lesson-package",
@@ -9051,9 +9064,20 @@
       "missionId": "zaytoona-core-002",
       "version": 2,
       "at": "2026-08-31T18:15:26.387Z"
+    },
+    {
+      "type": "CLAIMED",
+      "at": "2026-09-01T07:16:49.550Z",
+      "jobId": "math-validator",
+      "fence": "github-actions:1788247009549:jz4ldh7j9a"
+    },
+    {
+      "type": "PASSED",
+      "at": "2026-09-01T07:16:49.561Z",
+      "jobId": "math-validator"
     }
   ],
-  "updatedAt": "2026-09-01T06:48:29.853Z",
+  "updatedAt": "2026-09-01T07:16:49.561Z",
   "control": {
     "lastDecision": {
       "kind": "EXECUTE",
