@@ -26,8 +26,10 @@ jobs:
         run: python scripts/kefayat-master-audit.py
       - name: Catalog integrity and coverage
         run: node scripts/kefayat-regression.mjs
-      - name: End-to-end learning integration
+      - name: End-to-end learning integration (mandatory)
         run: node scripts/zaytoona-e2e.mjs
+      - name: E2E contract suite (mandatory)
+        run: npm run test:e2e
       - name: Full regression
         run: npm run test:all
       - name: Release Gate
