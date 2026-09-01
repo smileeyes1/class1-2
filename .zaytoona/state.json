@@ -8977,16 +8977,20 @@
     },
     {
       "id": "learning-core-gate",
-      "status": "READY",
+      "status": "PASSED",
       "priority": 105,
       "type": "validate_learning_core",
       "dependsOn": [
         "annual-plan-build"
       ],
-      "attempts": 0,
+      "attempts": 1,
       "lease": null,
       "error": null,
-      "evidence": null
+      "evidence": {
+        "ok": true,
+        "type": "validate_learning_core",
+        "failures": []
+      }
     },
     {
       "id": "math-validator",
@@ -9049,21 +9053,21 @@
       "at": "2026-08-31T18:15:26.387Z"
     }
   ],
-  "updatedAt": "2026-09-01T01:44:21.100Z",
+  "updatedAt": "2026-09-01T06:48:29.853Z",
   "control": {
     "lastDecision": {
       "kind": "EXECUTE",
-      "jobId": "annual-plan-build",
-      "priority": 110,
-      "type": "build_annual_plan"
+      "jobId": "learning-core-gate",
+      "priority": 105,
+      "type": "validate_learning_core"
     },
-    "decidedAt": "2026-09-01T01:44:21.047Z",
+    "decidedAt": "2026-09-01T06:48:29.832Z",
     "nextWake": {
       "version": 1,
       "reason": "WORK_READY",
       "delayMs": 300000,
-      "nextWakeAt": "2026-09-01T01:49:21.047Z",
-      "computedAt": "2026-09-01T01:44:21.047Z"
+      "nextWakeAt": "2026-09-01T06:53:29.832Z",
+      "computedAt": "2026-09-01T06:48:29.832Z"
     }
   }
 }
