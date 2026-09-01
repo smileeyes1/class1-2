@@ -16,7 +16,7 @@ function env(){
   const c={console,localStorage,document,crypto:{randomUUID:()=>`e2e-${Math.random()}`},setTimeout,clearTimeout,Promise,Math,Date,structuredClone,fetch:async()=>({ok:true,json:async()=>catalog})};
   c.window=c;vm.createContext(c);return c;
 }
-const load=(c,p)=>vm.runInContext(await read(p),c);
+const load=async(c,p)=>vm.runInContext(await read(p),c,{filename:p});
 
 test('E2E: Kefayat → annual → lesson → assessment → mastery → recovery',async()=>{
   const c=env();
@@ -44,12 +44,9 @@ test('E2E: Kefayat → annual → lesson → assessment → mastery → recovery
   c.ZaytoonaAnnualLearning.setState(competency.id,{status:'متقنة',stageIndex:0,week:competency.week});
   const saved=c.ZaytoonaAnnualLearning.state(competency.id);
   assert.equal(saved.status,'متقنة');
+  assert.equal(c.ZaytoonaAssessment.get(competency.id).mastered,true);
 
-  const c2=c;
-  assert.equal(c2.ZaytoonaAnnualLearning.state(competency.id).status,'متقنة');
-  assert.equal(c2.ZaytoonaAssessment.get(competency.id).mastered,true);
-
-  const recovered=c2.ZaytoonaAnnualLearning.plan().find(x=>x.id===competency.id);
+  const recovered=c.ZaytoonaAnnualLearning.plan().find(x=>x.id===competency.id);
   assert.ok(recovered,'mastered competency remains recoverable in annual catalog');
-  assert.equal(c2.ZaytoonaAssessment.get(competency.id).score,1);
+  assert.equal(c.ZaytoonaAssessment.get(competency.id).score,1);
 });
