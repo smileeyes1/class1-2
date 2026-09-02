@@ -1,11 +1,14 @@
 # Ω ZAYTOONA — Resume Checkpoint
 
-- Previous modular meta-system implementation: `66694a0b1ed0a8f54260a7230ef45b9f48fe129f`.
-- Previously pending CI run `33475014362`: now verified `success`; job `99752344820` completed Syntax check + learning core test successfully.
-- Runtime environment observed in production-continuity CI: Ubuntu 24.04.4, Node `v24.19.0`, npm `11.17.0`.
-- New evidenced blocker: production-continuity run `33533454861` failed at `zaytoona/autonomy/runner-live.test.mjs` test `live: parallel lease conflict`; actual `IDLE`, expected `BUSY`. Remaining container/restart/compose gates were skipped because the regression gate failed.
-- Root cause: when no READY job exists, `runOnce()` returned `IDLE` even if another worker held a live lease on active work.
-- Repair commit: `a72d483f4e227e322f71ac3beb1315dc42c092a9` updates `zaytoona/autonomy/runtime.mjs` to detect a live leased job in CLAIMED/RUNNING/VERIFYING/RECOVERING and return `BUSY` instead of false `IDLE`.
-- Verification status after repair: GitHub commit status currently `pending`; no successful post-repair production-continuity run has yet been observed. Therefore the repair is implemented but not yet proven by CI.
-- Release decision: `NO-GO` until the post-repair production-continuity workflow passes regression, container build, crash/restart/resume, and compose configuration gates.
-- Safe next action: inspect the workflow run triggered by repair commit `a72d483f4e227e322f71ac3beb1315dc42c092a9`; if it fails, use the exact failing log as the next repair target. If all gates pass, promote the continuity gate to GO and then run/inspect the integrated student E2E + release gate before broader release.
+- Modular meta-system implementation baseline: `66694a0b1ed0a8f54260a7230ef45b9f48fe129f`.
+- Runtime lease-conflict repair: `a72d483f4e227e322f71ac3beb1315dc42c092a9` fixes false `IDLE` while another worker owns a live lease.
+- Current production runtime checkpoint before E2E gate change: `ca7193407288dbe5d4fcb2eb0efeecac599d4c34`.
+- Runtime environment verified in CI: Ubuntu 24.04.4, Node `v24.19.0`, npm `11.17.0`.
+- Production-continuity verification: run `33596450348`, job `100140755658`, conclusion `success`. Passed: regression/unit continuity gates, container build, crash → restart → resume smoke test, Docker Compose configuration gate.
+- Coverage gap found: `.github/workflows/zaytoona-e2e-now.yml` did not execute `zaytoona/tests/modular-meta-system.e2e.test.mjs`, so prior E2E success could not prove Ω MODULAR META-SYSTEM integration.
+- Coverage repair commit: `6675285a2efb6a7e2f275305507465e477d1c26f` adds `Ω Modular Meta-System Kefayat E2E` before Release Gate and adds `MODULAR_META_SYSTEM=PASS` to GO evidence.
+- Integrated verification: run `33596642204`, job `100141308858`, conclusion `success`.
+- Integrated PASS stages: Kefayat catalog integrity; real student cycle; Ω Modular Meta-System Kefayat E2E; Release Gate; GO evidence.
+- First production module remains Kefayat, with stages PLAN → GENERATE → VALIDATE → EVALUATE → RED_TEAM → REGRESSION → RELEASE and full CI evidence through the integrated gate.
+- Release decision: `GO` for the current scoped baseline: Kefayat + Ω MODULAR META-SYSTEM v1 integration + production continuity + integrated student E2E. This GO does not automatically certify future modules that have not passed the same contract and gates.
+- Safe next action: freeze this scoped GO baseline, then onboard the next engine/module only through the same Module Contract → integration → adversarial/regression → Release Gate path; do not weaken or bypass the proven Kefayat gates.
