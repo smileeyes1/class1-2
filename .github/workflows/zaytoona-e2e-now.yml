@@ -18,7 +18,9 @@ jobs:
         run: node scripts/kefayat-regression.mjs
       - name: Real student cycle
         run: node --test zaytoona/tests/meta-student-cycle.e2e.test.mjs
+      - name: Ω Modular Meta-System Kefayat E2E
+        run: node --test zaytoona/tests/modular-meta-system.e2e.test.mjs
       - name: Release Gate
         run: npm run test:release
       - name: GO evidence
-        run: echo 'KEFAYAT=PASS' && echo 'STUDENT_CYCLE=PASS' && echo 'RELEASE_GATE=PASS'
+        run: echo 'KEFAYAT=PASS' && echo 'STUDENT_CYCLE=PASS' && echo 'MODULAR_META_SYSTEM=PASS' && echo 'RELEASE_GATE=PASS'
