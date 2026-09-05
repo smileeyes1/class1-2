@@ -9177,18 +9177,18 @@
       "jobId": "release-evidence"
     }
   ],
-  "updatedAt": "2026-09-05T22:14:46.798Z",
+  "updatedAt": "2026-09-05T23:58:57.528Z",
   "control": {
     "lastDecision": {
       "kind": "IDLE"
     },
-    "decidedAt": "2026-09-05T22:14:46.798Z",
+    "decidedAt": "2026-09-05T23:58:57.528Z",
     "nextWake": {
       "version": 1,
       "reason": "IDLE",
       "delayMs": 3600000,
-      "nextWakeAt": "2026-09-05T23:14:46.798Z",
-      "computedAt": "2026-09-05T22:14:46.798Z"
+      "nextWakeAt": "2026-09-06T00:58:57.527Z",
+      "computedAt": "2026-09-05T23:58:57.527Z"
     }
   }
 }
