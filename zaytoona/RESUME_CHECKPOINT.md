@@ -11,15 +11,15 @@
 - Gap found: the golden rule existed as `zaytoona/math-golden-render.mjs` plus regression tests, but the production lesson generator and `validateLesson` were not fail-closed on that contract.
 - Generator binding commit `5c6ce6dbfbe7e4c3c536c8f36c1d3c7e18ea1b18`: `generateAdditionWithin10()` now emits `internal_render = buildMissingResultInternal(a,b)` and `render_rule = ANSWER_FIRST_INTERNAL_V1` for every assessment item and math operation. The semantic target `٤ + ٣ = □` therefore carries the proven internal construction `□ = ٣ + ٤`.
 - Validator binding commit `303c317f486e7de1276cc9a39395cfff738ceca8`: `validateLesson()` now enforces `MATH-GOLDEN-001` fail-closed using the central contract and verifies assessment items are bound to validated math operations.
-- Integration-regression commit `2e02a18d05a11261fef50fd472313ee82295dd5d`: tests now prove the production generator emits the golden construction and that altering it to `□ = ٤ + ٣` produces `NO-GO`.
-- Current main contains this integration (a later Kefayat audit commit `59693902f31311ca63712fb87906300b4f6b25e4` has parent `2e02a18d05a11261fef50fd472313ee82295dd5d`).
-- ZAYTOONA Learning Core run `33949794877` on `2e02a18d05a11261fef50fd472313ee82295dd5d`: `success`.
-- Kefayat Regression run `33949795497`: catalog regression PASS, End-to-End Kefayat pipeline PASS, Full release gate PASS, Release gate PASS; job cleanup was still finishing at checkpoint observation.
+- Integration-regression commit `2e02a18d05a11261fef50fd472313ee82295dd5d`: tests prove the production generator emits the golden construction and that altering it to `□ = ٤ + ٣` produces `NO-GO`.
+- Current main contains this integration; audited Kefayat catalog commit `59693902f31311ca63712fb87906300b4f6b25e4` directly descends from `2e02a18d05a11261fef50fd472313ee82295dd5d`.
+- ZAYTOONA Learning Core run `33949794877` on the integration commit: `success`.
+- Kefayat Regression run `33949795497`: `success`; audited catalog requirement PASS, catalog regression PASS, End-to-End Kefayat pipeline PASS, Full release gate PASS, Release gate PASS, cleanup PASS.
 
 ## Decision
-- `GO` remains for the previously frozen scope.
+- `GO` remains for the frozen scope.
 - Golden math rendering is now production-bound at generator → validator → release-test layers, not documentation-only.
 - Do not weaken, commute, normalize away, or replace `□ = operand_2 + operand_1` with RTL/BiDi behavior. Any violation is a regression and must be `NO-GO`.
 
 ## Safe next action
-- Confirm final conclusion of run `33949795497` and inspect the freshest Integrated Student E2E/Production Continuity run on a descendant head. If green, extend the same golden-render contract to any additional math generators/renderers before onboarding the next production module.
+- Inspect the freshest Integrated Student E2E and Production Continuity on a descendant head. If green, extend the same golden-render contract to every additional math generator/renderer before onboarding another production module.
