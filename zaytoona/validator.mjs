@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { assertGoldenMissingResult, MATH_GOLDEN_RENDER_RULE } from './math-golden-render.mjs';
 
 const REQUIRED_VISUAL_ORDER = 'operand_1→operator→operand_2→equals→result';
 
@@ -47,6 +48,7 @@ export function validateLesson(pkg) {
 
   if ((pkg.math_operations ?? []).length === 0) {
     pass('MATH-VIS-001');
+    pass('MATH-GOLDEN-001');
   } else {
     for (const op of pkg.math_operations) {
       if (op.visual_order !== REQUIRED_VISUAL_ORDER) {
@@ -55,7 +57,26 @@ export function validateLesson(pkg) {
       }
     }
     if (!failures.some(f => f.id === 'MATH-VIS-001')) pass('MATH-VIS-001');
+
+    for (const op of pkg.math_operations) {
+      try {
+        if (op.render_rule !== MATH_GOLDEN_RENDER_RULE.id) throw new Error(`render_rule=${op.render_rule ?? 'missing'}`);
+        assertGoldenMissingResult({ operand1: op.operand_1, operand2: op.operand_2, internal: op.internal_render });
+      } catch (error) {
+        fail('MATH-GOLDEN-001', String(error?.message || error));
+        break;
+      }
+    }
+    if (!failures.some(f => f.id === 'MATH-GOLDEN-001')) pass('MATH-GOLDEN-001');
   }
+
+  for (const item of (pkg.assessment?.items ?? [])) {
+    if (item.render_rule === MATH_GOLDEN_RENDER_RULE.id) {
+      const op = (pkg.math_operations ?? []).find(x => x.internal_render === item.internal_render);
+      if (!op) { fail('ASSESS-GOLDEN-001', `assessment item ${item.id} is not bound to a validated math operation`); break; }
+    }
+  }
+  if (!failures.some(f => f.id === 'ASSESS-GOLDEN-001')) pass('ASSESS-GOLDEN-001');
 
   for (const v of (pkg.visual_counts ?? [])) {
     const expected = Number(v.expected_count);
