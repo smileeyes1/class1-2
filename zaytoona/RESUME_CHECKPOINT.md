@@ -1,15 +1,25 @@
 # Ω ZAYTOONA — Resume Checkpoint
 
-- Golden baseline remains protected: `82482a456171da20119df14df9a4ecfe125be215`.
+- Golden baseline remains protected, including the hard-locked practical math render rule whose immutable example is `□ = ٣ + ٤`.
 - Runtime lease-conflict repair remains `a72d483f4e227e322f71ac3beb1315dc42c092a9`.
-- Runtime environment verified in CI: Ubuntu 24.04.4, Node `v24.19.0`, npm `11.17.0`.
-- Production Continuity run `33842456513`: `success` (regression/unit gates, container build, crash→restart→resume, Docker Compose gate).
-- Fresh Integrated Student E2E run `33845220502`: `success`; Kefayat catalog integrity, real student cycle, Ω Modular Meta-System Kefayat E2E, Release Gate, and GO evidence all PASS.
-- Fresh Ω KEFAYAT MASTER AUDIT run `33845220642`: both `audit` and `gate` jobs `success`; master audit, Node regression, End-to-End, canonical catalog gate, and release test PASS.
-- A separate Kefayat Regression run `33845220637` exposed a stale/fragile remote rebuild failure: `CATALOG_INVALID:4|islamic`, while the audited canonical catalog already contains verified Grade 4 Islamic records.
-- CI repair commit `c7159a755992ba464b3062b31c4eb441eb29a2a9` changed Kefayat Regression to consume the audited canonical catalog and Node 24 instead of rebuilding from the volatile remote KB on every regression run.
-- That revealed a second real defect in `zaytoona/kefayat-production-pipeline.mjs`: the E2E selected `catalog.records[0]` while the annual engine defaults to Grade 1 / Arabic, making the test depend on catalog serialization order (`ANNUAL_KEFAYAT_MISMATCH`).
-- Production-pipeline repair commit `e078fd8a0c3984c8e72e7ebf087d770b9d73f4fc` now selects a real Grade 1 Arabic competency matching the annual engine's production default path and removes the unsafe fallback to an unrelated annual record.
-- Verification run `33845360146` on `e078fd8a0c3984c8e72e7ebf087d770b9d73f4fc`: `success`; audited catalog presence PASS, catalog regression PASS, End-to-End Kefayat pipeline PASS, full release gate PASS, release gate PASS.
-- Release decision: `GO` for the frozen scope and the repaired Kefayat regression path. No GO is inherited by future modules.
-- Safe next action: verify the push-triggered suite from this metadata checkpoint remains green, then onboard the next production module through the same contracts without weakening Kefayat or Runtime gates.
+- Runtime environment previously verified in CI: Ubuntu 24.04.4, Node `v24.19.0`, npm `11.17.0`.
+- Prior Production Continuity run `33842456513`: `success` (regression/unit gates, container build, crash→restart→resume, Docker Compose gate).
+- Prior Integrated Student E2E run `33849719403` for the golden-render release test: `success`.
+
+## This continuation
+- Repository head observed before changes: `bc120e3197f6a8e4eb6354ec271d69b51ebe8923` (autonomous runtime checkpoint only).
+- Gap found: the golden rule existed as `zaytoona/math-golden-render.mjs` plus regression tests, but the production lesson generator and `validateLesson` were not fail-closed on that contract.
+- Generator binding commit `5c6ce6dbfbe7e4c3c536c8f36c1d3c7e18ea1b18`: `generateAdditionWithin10()` now emits `internal_render = buildMissingResultInternal(a,b)` and `render_rule = ANSWER_FIRST_INTERNAL_V1` for every assessment item and math operation. The semantic target `٤ + ٣ = □` therefore carries the proven internal construction `□ = ٣ + ٤`.
+- Validator binding commit `303c317f486e7de1276cc9a39395cfff738ceca8`: `validateLesson()` now enforces `MATH-GOLDEN-001` fail-closed using the central contract and verifies assessment items are bound to validated math operations.
+- Integration-regression commit `2e02a18d05a11261fef50fd472313ee82295dd5d`: tests now prove the production generator emits the golden construction and that altering it to `□ = ٤ + ٣` produces `NO-GO`.
+- Current main contains this integration (a later Kefayat audit commit `59693902f31311ca63712fb87906300b4f6b25e4` has parent `2e02a18d05a11261fef50fd472313ee82295dd5d`).
+- ZAYTOONA Learning Core run `33949794877` on `2e02a18d05a11261fef50fd472313ee82295dd5d`: `success`.
+- Kefayat Regression run `33949795497`: catalog regression PASS, End-to-End Kefayat pipeline PASS, Full release gate PASS, Release gate PASS; job cleanup was still finishing at checkpoint observation.
+
+## Decision
+- `GO` remains for the previously frozen scope.
+- Golden math rendering is now production-bound at generator → validator → release-test layers, not documentation-only.
+- Do not weaken, commute, normalize away, or replace `□ = operand_2 + operand_1` with RTL/BiDi behavior. Any violation is a regression and must be `NO-GO`.
+
+## Safe next action
+- Confirm final conclusion of run `33949795497` and inspect the freshest Integrated Student E2E/Production Continuity run on a descendant head. If green, extend the same golden-render contract to any additional math generators/renderers before onboarding the next production module.
