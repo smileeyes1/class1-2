@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { validateLesson } from './validator.mjs';
+import { buildMissingResultInternal, MATH_GOLDEN_RENDER_RULE } from './math-golden-render.mjs';
 
 const AR = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
 const toArabic = (n) => String(n).replace(/[0-9]/g, d => AR[Number(d)]);
@@ -17,12 +18,21 @@ export function generateAdditionWithin10() {
       {name:'تمثيل مصور ورمزي',minutes:10},{name:'تدريب موجه',minutes:8},
       {name:'تطبيق فردي',minutes:7},{name:'تقويم وإغلاق',minutes:5}] },
     activities: [{ id:'act-01', purpose:'بناء معنى الجمع بوصفه ضم مجموعتين.', instructions:'ضع ٣ أشياء ثم أضف إليها ٤ أشياء، واطلب عدّ المجموعة كلها ثم كتابة العملية.', objective_links:['objective'] }],
-    assessment: { items: problems.map(([a,b],i)=>({id:`q${i+1}`, expression:`${toArabic(a)} + ${toArabic(b)} = ؟`, answer:a+b})), answer_key: problems.map(([a,b])=>a+b) },
+    assessment: { items: problems.map(([a,b],i)=>({
+      id:`q${i+1}`,
+      expression:`${toArabic(a)} + ${toArabic(b)} = ؟`,
+      internal_render:buildMissingResultInternal(a,b),
+      render_rule:MATH_GOLDEN_RENDER_RULE.id,
+      answer:a+b
+    })), answer_key: problems.map(([a,b])=>a+b) },
     artifacts: [
       {id:'teacher-guide',type:'teacher_guide',status:'generated'}, {id:'student-worksheet',type:'worksheet',status:'generated'},
       {id:'activity',type:'activity',status:'generated'}, {id:'assessment',type:'assessment',status:'generated'}],
     evidence: [{ claim:'موضوع الجمع ضمن العدد ١٠ موجود في بيانات المنهج المحلية للمشروع للصف الأول.', source:'curriculum-offline.json', evidence:'الوحدة الثالثة تتضمن: الدرس الثامن: الجمع ضمن العدد (١٠)', status:'checked' }],
-    math_operations: problems.map(([a,b])=>({operand_1:a,operator:'+',operand_2:b,result:a+b,visual_order:VISUAL_ORDER})),
+    math_operations: problems.map(([a,b])=>({
+      operand_1:a,operator:'+',operand_2:b,result:a+b,visual_order:VISUAL_ORDER,
+      internal_render:buildMissingResultInternal(a,b),render_rule:MATH_GOLDEN_RENDER_RULE.id
+    })),
     visual_counts: problems.map(([a,b])=>({expected_count:a+b,actual_count:a+b})),
     assurance: { state:'NOT_PROVEN', checks:[] }
   };
