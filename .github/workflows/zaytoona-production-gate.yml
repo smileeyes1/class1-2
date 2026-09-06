@@ -4,7 +4,9 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'zaytoona/autonomy/**'
+      - 'zaytoona/**'
+      - 'scripts/**'
+      - 'package.json'
       - '.github/workflows/zaytoona-production-gate.yml'
   schedule:
     - cron: '17 */6 * * *'
@@ -19,7 +21,7 @@ concurrency:
 jobs:
   production-gate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,9 +29,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: npm
-          cache-dependency-path: zaytoona/autonomy/package.json
-      - name: Install
+      - name: Install autonomy dependencies
         working-directory: zaytoona/autonomy
         run: npm install --ignore-scripts --no-audit --no-fund
       - name: Production recovery gate
@@ -45,13 +45,21 @@ jobs:
       - name: Autonomous worker smoke gate
         working-directory: zaytoona/autonomy
         run: npm run worker
+      - name: Palestinian educational golden E2E and regression
+        working-directory: ${{ github.workspace }}
+        run: npm run test:all
       - name: Production evidence summary
-        working-directory: zaytoona/autonomy
+        working-directory: ${{ github.workspace }}
         run: |
           set -euo pipefail
-          test -f mission.json
+          test -f zaytoona/autonomy/mission.json
           test -f package.json
           echo 'ZAYTOONA_PRODUCTION_GATE=PASS'
+          echo 'EDUCATIONAL_GOLDEN_E2E=PASS'
+          echo 'KEFAYAT=PASS'
+          echo 'ANNUAL_LEARNING=PASS'
+          echo 'LESSON_ASSESSMENT_MASTERY=PASS'
+          echo 'MATH_GOLDEN_RENDER=PASS'
           echo 'REGRESSION=PASS'
           echo 'SYNTAX=PASS'
           echo 'WORKER_SMOKE=PASS'
