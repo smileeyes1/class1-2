@@ -17,7 +17,7 @@ function validPackage() {
     artifacts: [{ id: 'worksheet', type: 'worksheet', status: 'validated' }],
     evidence: [{ claim: 'curriculum mapping', source: 'curriculum-offline.json', evidence: 'lesson entry', status: 'checked' }],
     assurance: { state: 'READY_FOR_EXECUTION', checks: [] },
-    math_operations: [{ operand_1: 3, operator: '+', operand_2: 4, result: 7, visual_order: 'operand_1→operator→operand_2→equals→result' }]
+    math_operations: [{ operand_1: 3, operator: '+', operand_2: 4, result: 7, visual_order: 'operand_1→operator→operand_2→equals→result', render_rule: 'ANSWER_FIRST_INTERNAL_V1', internal_render: '□ = ٤ + ٣' }]
   };
 }
 
@@ -55,4 +55,10 @@ test('incorrect visual order is rejected', () => {
   const p = validPackage(); p.math_operations[0].visual_order = 'operator→operand_1→operand_2→equals→result';
   const r = validateLesson(p);
   assert.equal(r.state, 'NO-GO'); assert.ok(r.failures.some(x => x.id === 'MATH-VIS-001'));
+});
+
+test('incorrect golden internal render is rejected', () => {
+  const p = validPackage(); p.math_operations[0].internal_render = '□ = ٣ + ٤';
+  const r = validateLesson(p);
+  assert.equal(r.state, 'NO-GO'); assert.ok(r.failures.some(x => x.id === 'MATH-GOLDEN-001'));
 });
